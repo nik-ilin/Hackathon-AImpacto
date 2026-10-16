@@ -1,0 +1,2 @@
+-- Deliberately no fake accounts, groups or projects.
+-- The canonical scientific vocabulary is versioned with the schema migration.
