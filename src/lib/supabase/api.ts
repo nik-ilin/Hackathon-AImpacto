@@ -6,6 +6,11 @@ import type {
   projectSchema,
 } from "../validation/schemas";
 import { backend } from "./client";
+import {
+  mutationSession,
+  sessionForUser,
+  type MutationIdentity,
+} from "./identity";
 
 export async function getTopics() {
   const { data, error } = await backend()
@@ -35,38 +40,46 @@ export async function getProfileTopics(id: string) {
 export async function saveProfile(
   values: z.infer<typeof profileSchema>,
   topicIds: string[],
+  identity: MutationIdentity,
 ) {
-  const { error } = await backend().rpc("upsert_profile", {
-    p_full_name: values.full_name,
-    p_username: values.username || null,
-    p_institution: values.institution || null,
-    p_country: values.country || null,
-    p_academic_stage: values.academic_stage || null,
-    p_bio: values.bio || null,
-    p_skills: values.skills
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-    p_orcid_id: values.orcid_id || null,
-    p_visibility: values.visibility,
-    p_topic_ids: topicIds,
-  });
+  const session = await mutationSession(identity);
+  const { error } = await backend()
+    .rpc("upsert_profile", {
+      p_full_name: values.full_name,
+      p_username: values.username || null,
+      p_institution: values.institution || null,
+      p_country: values.country || null,
+      p_academic_stage: values.academic_stage || null,
+      p_bio: values.bio || null,
+      p_skills: values.skills
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+      p_orcid_id: values.orcid_id || null,
+      p_visibility: values.visibility,
+      p_topic_ids: topicIds,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
 }
 export async function discoverGroups(
+  userId: string,
   search = "",
   topicId: string | null = null,
   accepting: boolean | null = null,
   offset = 0,
   limit = 12,
 ) {
-  const { data, error } = await backend().rpc("discover_groups", {
-    p_search: search || null,
-    p_topic_id: topicId,
-    p_accepting: accepting,
-    p_limit: limit,
-    p_offset: offset,
-  });
+  const session = await sessionForUser(userId);
+  const { data, error } = await backend()
+    .rpc("discover_groups", {
+      p_search: search || null,
+      p_topic_id: topicId,
+      p_accepting: accepting,
+      p_limit: limit,
+      p_offset: offset,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
   return data;
 }
@@ -132,18 +145,22 @@ export async function getGroupRequest(groupId: string, userId: string) {
 export async function saveGroup(
   values: z.infer<typeof groupSchema>,
   topicIds: string[],
+  identity: MutationIdentity,
   id?: string,
 ) {
-  const { data, error } = await backend().rpc("save_research_group", {
-    p_group_id: id ?? null,
-    p_name: values.name,
-    p_description: values.description,
-    p_institution: values.institution || null,
-    p_country: values.country || null,
-    p_visibility: values.visibility,
-    p_accepting_members: values.accepting_members,
-    p_topic_ids: topicIds,
-  });
+  const session = await mutationSession(identity, !id);
+  const { data, error } = await backend()
+    .rpc("save_research_group", {
+      p_group_id: id ?? null,
+      p_name: values.name,
+      p_description: values.description,
+      p_institution: values.institution || null,
+      p_country: values.country || null,
+      p_visibility: values.visibility,
+      p_accepting_members: values.accepting_members,
+      p_topic_ids: topicIds,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
   return data;
 }
@@ -198,27 +215,44 @@ export async function getOwnMembership(groupId: string, userId: string) {
   if (error) throw error;
   return data;
 }
-export async function requestToJoin(groupId: string, message: string) {
-  const { error } = await backend().rpc("request_to_join", {
-    p_group_id: groupId,
-    p_message: message || null,
-  });
+export async function requestToJoin(
+  groupId: string,
+  message: string,
+  identity: MutationIdentity,
+) {
+  const session = await mutationSession(identity, true);
+  const { error } = await backend()
+    .rpc("request_to_join", {
+      p_group_id: groupId,
+      p_message: message || null,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
 }
 export async function decideRequest(
   requestId: string,
   decision: "approved" | "rejected",
+  identity: MutationIdentity,
 ) {
-  const { error } = await backend().rpc("decide_join_request", {
-    p_request_id: requestId,
-    p_decision: decision,
-  });
+  const session = await mutationSession(identity);
+  const { error } = await backend()
+    .rpc("decide_join_request", {
+      p_request_id: requestId,
+      p_decision: decision,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
 }
-export async function cancelRequest(requestId: string) {
-  const { error } = await backend().rpc("cancel_join_request", {
-    p_request_id: requestId,
-  });
+export async function cancelRequest(
+  requestId: string,
+  identity: MutationIdentity,
+) {
+  const session = await mutationSession(identity);
+  const { error } = await backend()
+    .rpc("cancel_join_request", {
+      p_request_id: requestId,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
 }
 export async function getRequests(userId: string, page = 0) {
@@ -278,22 +312,26 @@ export async function saveProject(
   values: z.infer<typeof projectSchema>,
   topicIds: string[],
   groupId: string,
+  identity: MutationIdentity,
   id?: string,
 ) {
-  const { data, error } = await backend().rpc("save_research_project", {
-    p_project_id: id ?? null,
-    p_group_id: groupId,
-    p_title: values.title,
-    p_description: values.description,
-    p_status: values.status,
-    p_visibility: values.visibility,
-    p_funding_needed_amount:
-      values.funding_needed_amount === ""
-        ? null
-        : Number(values.funding_needed_amount),
-    p_funding_currency: values.funding_currency || null,
-    p_topic_ids: topicIds,
-  });
+  const session = await mutationSession(identity);
+  const { data, error } = await backend()
+    .rpc("save_research_project", {
+      p_project_id: id ?? null,
+      p_group_id: groupId,
+      p_title: values.title,
+      p_description: values.description,
+      p_status: values.status,
+      p_visibility: values.visibility,
+      p_funding_needed_amount:
+        values.funding_needed_amount === ""
+          ? null
+          : Number(values.funding_needed_amount),
+      p_funding_currency: values.funding_currency || null,
+      p_topic_ids: topicIds,
+    })
+    .setHeader("Authorization", `Bearer ${session.access_token}`);
   if (error) throw error;
   return data;
 }

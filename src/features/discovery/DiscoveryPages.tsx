@@ -34,7 +34,7 @@ export function DashboardPage() {
       const [profile, groups, recommended] = await Promise.all([
         getProfile(userId),
         getMyGroups(userId),
-        discoverGroups("", null, null, 0, 6),
+        discoverGroups(userId, "", null, null, 0, 6),
       ]);
       return { profile, groups, recommended };
     }, [userId]),
@@ -125,16 +125,22 @@ export function DashboardPage() {
   );
 }
 export function ExplorePage() {
+  const { session } = useAuth();
+  const userId = session?.user.id ?? "";
   const [params, setParams] = useSearchParams();
   const search = params.get("q") ?? "";
   const topic = params.get("topic") ?? "";
   const accepting = params.get("accepting") === "true";
   const page = Math.max(0, Number(params.get("page")) || 0);
-  const [draftSearch, setDraftSearch] = useState(search);
+  const [draft, setDraft] = useState({ search, value: search });
+  // Only URL q changes replace the draft; filters and token refresh keep typing intact.
+  if (draft.search !== search) setDraft({ search, value: search });
+  const draftSearch = draft.search === search ? draft.value : search;
   const resource = useResource(
     useCallback(async () => {
       const [groups, topics] = await Promise.all([
         discoverGroups(
+          userId,
           search,
           topic || null,
           accepting ? true : null,
@@ -144,7 +150,7 @@ export function ExplorePage() {
         getTopics(),
       ]);
       return { groups, topics };
-    }, [search, topic, accepting, page]),
+    }, [userId, search, topic, accepting, page]),
   );
   function filter(key: string, value: string) {
     const next = new URLSearchParams(params);
@@ -183,7 +189,9 @@ export function ExplorePage() {
             <input
               placeholder="Nombre o línea de investigación"
               value={draftSearch}
-              onChange={(event) => setDraftSearch(event.target.value)}
+              onChange={(event) =>
+                setDraft({ search, value: event.target.value })
+              }
               maxLength={200}
             />
           </div>

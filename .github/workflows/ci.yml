@@ -38,5 +38,13 @@ jobs:
       - run: npm run test:integration
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e:local
+      - name: Upload safe E2E diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-safe-diagnostics
+          path: test-results/**/safe-diagnostics.json
+          if-no-files-found: ignore
+          retention-days: 7
       - if: always()
         run: npx supabase stop --no-backup

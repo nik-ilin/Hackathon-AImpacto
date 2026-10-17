@@ -17,6 +17,7 @@ import {
   DashboardPage,
   ExplorePage,
 } from "../../features/discovery/DiscoveryPages";
+import { RequiredProfile } from "../../features/profiles/RequiredProfile";
 import { ProfilePage } from "../../features/profiles/ProfilePage";
 import {
   GroupDetailPage,
@@ -31,7 +32,7 @@ import {
 import { Link } from "react-router-dom";
 
 export function ProtectedRoute() {
-  const { session, loading, error, recovery } = useAuth();
+  const { session, identityEpoch, loading, error, recovery } = useAuth();
   const location = useLocation();
   if (!supabase) return <Navigate to="/setup" replace />;
   if (loading) return <Loading />;
@@ -45,7 +46,7 @@ export function ProtectedRoute() {
       />
     );
   if (recovery) return <Navigate to="/reset-password" replace />;
-  return <Outlet />;
+  return <Outlet key={identityEpoch} />;
 }
 function RecoveryRedirect() {
   const { recovery } = useAuth();
@@ -98,7 +99,14 @@ export function App() {
               <Route path="/onboarding" element={<ProfilePage onboarding />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/explore" element={<ExplorePage />} />
-              <Route path="/groups/new" element={<GroupFormPage />} />
+              <Route
+                path="/groups/new"
+                element={
+                  <RequiredProfile>
+                    <GroupFormPage />
+                  </RequiredProfile>
+                }
+              />
               <Route path="/groups/:groupId" element={<GroupDetailPage />} />
               <Route path="/groups/:groupId/edit" element={<GroupFormPage />} />
               <Route path="/my-groups" element={<MyGroupsPage />} />

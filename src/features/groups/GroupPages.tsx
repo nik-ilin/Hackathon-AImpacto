@@ -23,6 +23,8 @@ import {
   TopicPicker,
 } from "../../components/ui";
 import { useResource } from "../../hooks/useResource";
+import { useMutationIdentity } from "../../hooks/useMutationIdentity";
+import { RequiredProfile } from "../profiles/RequiredProfile";
 import {
   getGroup,
   getGroupMembers,
@@ -121,6 +123,8 @@ const groupInitial: z.infer<typeof groupSchema> = {
   accepting_members: true,
 };
 export function GroupFormPage() {
+  const { session } = useAuth();
+  const userId = session?.user.id ?? "";
   const { groupId } = useParams();
   const resource = useResource(
     useCallback(async () => {
@@ -129,14 +133,15 @@ export function GroupFormPage() {
         groupId ? getGroup(groupId) : Promise.resolve(null),
         groupId ? getGroupTopics(groupId) : Promise.resolve([]),
       ]);
-      return { topics, group, selected };
-    }, [groupId]),
+      return { topics, group, selected, userId };
+    }, [groupId, userId]),
   );
   return (
     <ResourceState {...resource} retry={() => void resource.reload()}>
       {resource.data && (
         <GroupEditor
-          key={groupId ?? "new"}
+          key={`${resource.data.userId}:${groupId ?? "new"}`}
+          userId={resource.data.userId}
           groupId={groupId}
           group={resource.data.group}
           topics={resource.data.topics}
@@ -147,17 +152,19 @@ export function GroupFormPage() {
   );
 }
 function GroupEditor({
+  userId,
   groupId,
   group,
   topics,
   initialSelected,
 }: {
+  userId: string;
   groupId: string | undefined;
   group: Tables<"research_groups"> | null;
   topics: Tables<"topics">[];
   initialSelected: string[];
 }) {
-  const { session } = useAuth();
+  const identity = useMutationIdentity(userId);
   const navigate = useNavigate();
   const [values, setValues] = useState<z.infer<typeof groupSchema>>(() =>
     group
@@ -190,15 +197,16 @@ function GroupEditor({
     }
     setBusy(true);
     try {
-      const id = await saveGroup(parsed.data, selected, groupId);
-      navigate(`/groups/${id}`, { state: { saved: true } });
+      const id = await saveGroup(parsed.data, selected, identity, groupId);
+      if (identity.isCurrent())
+        navigate(`/groups/${id}`, { state: { saved: true } });
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (identity.isCurrent()) setError(errorMessage(failure));
     } finally {
-      setBusy(false);
+      if (identity.isCurrent()) setBusy(false);
     }
   }
-  const allowed = !group || group.owner_id === session!.user.id;
+  const allowed = !group || group.owner_id === userId;
   return (
     <>
       <PageHeading
@@ -307,12 +315,14 @@ function GroupEditor({
 }
 export function GroupDetailPage() {
   const { groupId } = useParams();
-  return <GroupDetail key={groupId} />;
+  const { session } = useAuth();
+  return <GroupDetail key={`${session?.user.id}:${groupId}`} />;
 }
 function GroupDetail() {
   const { groupId = "" } = useParams();
   const { session } = useAuth();
   const userId = session!.user.id;
+  const identity = useMutationIdentity(userId);
   const [membersPage, setMembersPage] = useState(0);
   const [projectsPage, setProjectsPage] = useState(0);
   const resource = useResource(
@@ -373,13 +383,14 @@ function GroupDetail() {
     }
     setBusy(true);
     try {
-      await requestToJoin(groupId, parsed.data);
+      await requestToJoin(groupId, parsed.data, identity);
+      if (!identity.isCurrent()) return;
       setSuccess(true);
       await resource.reload();
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (identity.isCurrent()) setError(errorMessage(failure));
     } finally {
-      setBusy(false);
+      if (identity.isCurrent()) setBusy(false);
     }
   }
   return (
@@ -555,25 +566,27 @@ function GroupDetail() {
                     en <Link to="/requests">Solicitudes</Link>.
                   </Notice>
                 ) : data.group.accepting_members ? (
-                  <form
-                    className="panel form-stack"
-                    onSubmit={(event) => void join(event)}
-                  >
-                    <h3>Encuentra tu lugar en el equipo</h3>
-                    {error && <Notice>{error}</Notice>}
-                    <Field label="Presentación (opcional)">
-                      <textarea
-                        rows={4}
-                        value={message}
-                        onChange={(event) => setMessage(event.target.value)}
-                        maxLength={2000}
-                        placeholder="Comparte tu interés por el grupo."
-                      />
-                    </Field>
-                    <Button type="submit" disabled={busy}>
-                      {busy ? "Enviando…" : "Solicitar incorporación"}
-                    </Button>
-                  </form>
+                  <RequiredProfile>
+                    <form
+                      className="panel form-stack"
+                      onSubmit={(event) => void join(event)}
+                    >
+                      <h3>Encuentra tu lugar en el equipo</h3>
+                      {error && <Notice>{error}</Notice>}
+                      <Field label="Presentación (opcional)">
+                        <textarea
+                          rows={4}
+                          value={message}
+                          onChange={(event) => setMessage(event.target.value)}
+                          maxLength={2000}
+                          placeholder="Comparte tu interés por el grupo."
+                        />
+                      </Field>
+                      <Button type="submit" disabled={busy}>
+                        {busy ? "Enviando…" : "Solicitar incorporación"}
+                      </Button>
+                    </form>
+                  </RequiredProfile>
                 ) : (
                   <Notice success>
                     Este grupo no acepta solicitudes en este momento.

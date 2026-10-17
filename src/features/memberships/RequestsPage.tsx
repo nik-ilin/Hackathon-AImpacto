@@ -10,6 +10,7 @@ import {
   Pagination,
 } from "../../components/ui";
 import { useResource } from "../../hooks/useResource";
+import { useMutationIdentity } from "../../hooks/useMutationIdentity";
 import {
   cancelRequest,
   decideRequest,
@@ -26,7 +27,10 @@ const statusLabels = {
 };
 export function RequestsPage() {
   const { session } = useAuth();
-  const userId = session!.user.id;
+  return <Requests key={session!.user.id} userId={session!.user.id} />;
+}
+function Requests({ userId }: { userId: string }) {
+  const identity = useMutationIdentity(userId);
   const [page, setPage] = useState(0);
   const resource = useResource(
     useCallback(() => getRequests(userId, page), [userId, page]),
@@ -43,8 +47,9 @@ export function RequestsPage() {
     setError(null);
     setSuccess(null);
     try {
-      if (action === "cancelled") await cancelRequest(id);
-      else await decideRequest(id, action);
+      if (action === "cancelled") await cancelRequest(id, identity);
+      else await decideRequest(id, action, identity);
+      if (!identity.isCurrent()) return;
       setSuccess(
         {
           approved: "Solicitud aprobada. La persona ya forma parte del grupo.",
@@ -54,9 +59,9 @@ export function RequestsPage() {
       );
       await resource.reload();
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (identity.isCurrent()) setError(errorMessage(failure));
     } finally {
-      setBusy(null);
+      if (identity.isCurrent()) setBusy(null);
     }
   }
   function requestCard(request: Tables<"group_join_requests">) {

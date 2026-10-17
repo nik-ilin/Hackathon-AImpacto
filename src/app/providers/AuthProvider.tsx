@@ -5,7 +5,10 @@ import { errorMessage } from "../../lib/errors/messages";
 
 import { AuthContext } from "./auth-context";
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [{ session, identityEpoch }, setAuth] = useState<{
+    session: Session | null;
+    identityEpoch: number;
+  }>({ session: null, identityEpoch: 0 });
   const [loading, setLoading] = useState(Boolean(supabase));
   const [error, setError] = useState<string | null>(null);
   const [recovery, setRecovery] = useState(
@@ -20,7 +23,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((event, nextSession) => {
       authEventSeen = true;
       if (!active) return;
-      setSession(nextSession);
+      setAuth((current) => ({
+        session: nextSession,
+        identityEpoch:
+          current.identityEpoch +
+          Number(current.session?.user.id !== nextSession?.user.id),
+      }));
       setLoading(false);
       setError(null);
       if (event === "PASSWORD_RECOVERY") setRecovery(true);
@@ -30,7 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .getSession()
       .then(({ data, error: sessionError }) => {
         if (!active || authEventSeen) return;
-        setSession(data.session);
+        setAuth((current) => ({
+          session: data.session,
+          identityEpoch:
+            current.identityEpoch +
+            Number(current.session?.user.id !== data.session?.user.id),
+        }));
         setError(sessionError ? errorMessage(sessionError) : null);
         setLoading(false);
       })
@@ -49,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         session,
+        identityEpoch,
         loading,
         error,
         recovery,
