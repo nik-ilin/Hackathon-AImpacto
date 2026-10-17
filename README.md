@@ -540,6 +540,8 @@ Proyecto desarrollado durante el hackathon **AImpacto** por el equipo de NexoLab
 | Javier Gonzálvez | Infraestructura M1, importación de perfil, Raúl, integración backend |
 | Samuel Izquierdo (Saizsa) | Agente Judy |
 | Nikolai Ilin (nik-ilin) | Matching/diagnóstico y Raúl |
+| Alex | Error testing, frontend |
+| Jhojan | UI |
 | Jonnathan Ospina | Contribuciones al repositorio |
 
 ---
