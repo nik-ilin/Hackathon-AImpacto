@@ -164,58 +164,90 @@ La búsqueda de usuarios **solo lee datos persistidos**; no hay scraping ni llam
 
 ## Estructura de carpetas
 
-> Estado actual de `main`, que ya incluye el stack consolidado de la rama `integration/backend-lovable` (PR #1).
+> Vista resumida de los archivos versionados en `main`. El frontend React del repositorio es la referencia funcional; el frontend definitivo de Lovable se conecta mediante los contratos documentados en `docs/lovable-backend-handoff.md`.
 
 ```text
 .
-├── src/                          # Frontend React (referencia funcional)
-│   ├── app/
-│   │   ├── providers/            # AuthProvider, contexto de sesión
-│   │   └── routes/               # Rutas y ProtectedRoute
-│   ├── components/               # Layout y controles UI reutilizables
-│   ├── features/                 # Servicios y pantallas por feature
-│   │   ├── auth/                 # Login, registro, recuperación, /setup
-│   │   ├── discovery/            # Landing, dashboard, explorar
-│   │   ├── groups/               # Grupos de investigación
-│   │   ├── memberships/          # Solicitudes de ingreso
-│   │   ├── profiles/             # Perfil + import/ (ORCID, LinkedIn)
-│   │   ├── projects/             # Proyectos de investigación
-│   │   ├── matching/             # Necesidades, diagnóstico y feedback
-│   │   └── scholarships/         # Catálogo de becas/financiación y elegibilidad
-│   ├── hooks/                    # useResource, useMutationIdentity
-│   ├── lib/
-│   │   ├── supabase/             # Cliente, config, api, catalog, identity
-│   │   ├── validation/           # Esquemas Zod
-│   │   └── errors/               # Mensajes de error
-│   ├── types/                    # database.ts (contrato SQL), automations.ts
-│   └── styles/
-├── supabase/
-│   ├── config.toml               # Configuración del stack local
-│   ├── migrations/               # Fuente de verdad del esquema (versionadas)
-│   ├── functions/                # Edge Functions
-│   │   ├── _shared/              # Utilidades ORCID compartidas
-│   │   ├── profile-orcid/
-│   │   └── raul-trigger/
-│   ├── seed.sql                  # Datos de demostración (solo local)
-│   └── tests/                    # pgTAP: colaboración, Raúl, financiación
-├── agents/
-│   └── judy/                     # Agente de convocatorias de financiación
-│       ├── src/                  # cli, pipeline, runner, server, sources/, store/, util/
-│       ├── config/               # private-sources.json
-│       ├── sql/                  # SQL legado (NO aplicar; ver migraciones canónicas)
-│       └── tests/                # Fixtures reales + PGlite
-├── tests/
-│   ├── frontend/                 # Vitest: componentes, validación, importaciones, agentes
-│   ├── database/                 # Esquema, RLS, concurrencia (PostgreSQL embebido)
-│   ├── integration/              # Auth/REST/Edge contra Supabase local
-│   ├── e2e/                      # Playwright
-│   └── fixtures/
-├── docs/                         # Documentación técnica detallada
-├── .github/workflows/            # ci.yml (calidad) y judy.yml (ingesta diaria)
-├── AGENTS.md                     # Instrucciones para agentes de código del repo
-├── .env.example                  # Variables públicas del frontend
-└── package.json
+├── src/                                                      # Frontend React de referencia
+│   ├── app/                                                  # Proveedores de sesión y rutas
+│   │   ├── providers/                                        # AuthProvider y contexto de autenticación
+│   │   └── routes/                                           # Rutas, ProtectedRoute y redirecciones
+│   ├── components/                                           # Componentes reutilizables
+│   │   ├── layout/                                           # AppLayout
+│   │   └── ui/                                               # Controles, estados y campos accesibles
+│   ├── features/                                             # Pantallas y servicios por funcionalidad
+│   │   ├── auth/                                             # Registro, acceso, recuperación y configuración
+│   │   ├── discovery/                                        # Portada, dashboard y exploración de grupos
+│   │   ├── groups/                                           # Gestión y detalle de grupos
+│   │   ├── memberships/                                      # Solicitudes de incorporación
+│   │   ├── profiles/                                         # Perfil y requisito de perfil completo
+│   │   │   └── import/                                       # Importación ORCID y exportaciones ZIP/CSV de LinkedIn
+│   │   ├── projects/                                         # Formularios y detalle de proyectos
+│   │   ├── matching/                                         # Necesidades, diagnóstico de encaje y feedback
+│   │   └── scholarships/                                     # Pantalla de becas/prácticas y comparación de requisitos
+│   ├── hooks/                                                # useResource y useMutationIdentity
+│   ├── lib/                                                  # Acceso a datos y utilidades compartidas
+│   │   ├── supabase/                                         # Cliente, configuración, API, identidad y contrato de catálogo paginado
+│   │   ├── validation/                                       # Esquemas Zod
+│   │   └── errors/                                           # Mensajes de error
+│   ├── types/                                                # database.ts y automations.ts
+│   ├── styles/                                               # Estilos globales
+│   ├── main.tsx                                              # Entrada de la aplicación
+│   └── vite-env.d.ts                                         # Tipos del entorno Vite
+├── supabase/                                                 # Esquema, funciones y pruebas del backend
+│   ├── config.toml                                           # Configuración de Supabase local
+│   ├── functions/                                            # Edge Functions y configuración de ejemplo
+│   │   ├── _shared/                                          # Normalización e importación ORCID compartidas
+│   │   ├── profile-orcid/                                    # Entrypoint y handler de importación ORCID
+│   │   ├── raul-trigger/                                     # Entrypoint, handler, extracción y seguridad de Raúl
+│   │   └── .env.example                                      # Variables de ejemplo para las funciones
+│   ├── migrations/                                           # Migraciones canónicas, en orden
+│   │   ├── 20261016222019_nexolab_m1.sql                     # Colaboración M1
+│   │   ├── 20261017010000_matching_diagnostics_feedback.sql  # Matching y feedback
+│   │   ├── 20261017020000_raul_opportunities.sql             # Catálogo de Raúl
+│   │   └── 20261017093053_funding_catalog_judy.sql           # Financiación e integración de Judy
+│   ├── tests/                                                # pgTAP: colaboración, Raúl y financiación
+│   └── seed.sql                                              # Datos de demostración; solo para el stack local
+├── agents/                                                   # Agentes ejecutados fuera del cliente
+│   └── judy/                                                 # Recolector de convocatorias de financiación
+│       ├── src/                                              # CLI, pipeline, runner, servidor y tipos
+│       │   ├── sources/                                      # Adaptadores BDNS, UE, UCM y web privada
+│       │   ├── store/                                        # Persistencia de Judy en Supabase
+│       │   └── util/                                         # HTTP y procesamiento de texto y fechas
+│       ├── config/                                           # Configuración de fuentes privadas
+│       ├── tests/                                            # Pruebas de fuentes, persistencia, servidor y base de datos
+│       │   └── fixtures/                                     # Respuestas y páginas de referencia para las pruebas
+│       ├── sql/                                              # SQL legado: no aplicar; usar supabase/migrations/
+│       ├── .env.example                                      # Variables de ejemplo de Judy
+│       ├── README.md                                         # Documentación del agente
+│       ├── package.json                                      # Dependencias y scripts de Judy
+│       ├── package-lock.json                                 # Versiones fijadas de sus dependencias
+│       └── tsconfig.json                                     # Configuración TypeScript de Judy
+├── tests/                                                    # Pruebas de la aplicación y del backend
+│   ├── frontend/                                             # Vitest: UI, validación, identidad, importaciones, matching y Raúl
+│   ├── database/                                             # Pruebas SQL con PGlite y runners de concurrencia PostgreSQL
+│   ├── integration/                                          # Auth/REST/Edge locales y comprobación del contrato de tipos
+│   ├── e2e/                                                  # Playwright: portada, selector de disciplina y colaboración
+│   └── fixtures/                                             # Tipos generados de referencia y su procedencia
+├── docs/                                                     # Arquitectura, permisos, preparación backend, verificación y guía para Lovable
+├── .github/                                                  # Automatizaciones del repositorio
+│   └── workflows/                                            # GitHub Actions
+│       ├── ci.yml                                            # Calidad e integración con Supabase local
+│       └── judy.yml                                          # Ingesta diaria y ejecución manual de Judy
+├── .env.example                                              # Variables públicas de ejemplo del frontend
+├── .gitignore                                                # Exclusiones del repositorio
+├── AGENTS.md                                                 # Instrucciones de trabajo para agentes de código
+├── README.md                                                 # Descripción y puesta en marcha del proyecto
+├── index.html                                                # Documento HTML de entrada de Vite
+├── package.json                                              # Dependencias y scripts de la aplicación
+├── package-lock.json                                         # Versiones fijadas de las dependencias
+├── vite.config.ts                                            # Vite, React, Tailwind y Vitest
+├── tsconfig.json                                             # Configuración TypeScript de la aplicación
+├── eslint.config.js                                          # Reglas de lint
+└── playwright.config.ts                                      # Configuración de las pruebas E2E
 ```
+
+Las carpetas generadas o locales, como `node_modules/`, `dist/` y `.local/`, no forman parte de este árbol. Las migraciones de `supabase/migrations/` son la fuente de verdad; `agents/judy/sql/` conserva SQL legado y no debe aplicarse.
 
 ---
 
