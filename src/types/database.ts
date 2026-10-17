@@ -70,6 +70,36 @@ export type Topic = {
   name: string;
   parent_id: string | null;
 };
+export type RecruitmentNeed = {
+  id: string;
+  group_id: string;
+  project_id: string | null;
+  title: string;
+  description: string;
+  required_skills: string[];
+  status: "open" | "closed";
+  created_at: string;
+  updated_at: string;
+};
+export type RecommendationEvent = {
+  id: string;
+  actor_id: string;
+  need_id: string;
+  impression_key: string;
+  algorithm_version: string;
+  context: Json;
+  evaluation: Json;
+  created_at: string;
+  shown_at: string | null;
+};
+export type RecommendationFeedback = {
+  event_id: string;
+  actor_id: string;
+  response: "useful" | "not_useful";
+  comment: string;
+  created_at: string;
+  updated_at: string;
+};
 type Relation<
   Name extends string,
   Column extends string,
@@ -91,6 +121,18 @@ type Table<Row, Required extends keyof Row, Relationships extends unknown[]> = {
 export type Database = {
   public: {
     Tables: {
+      recruitment_needs: Table<RecruitmentNeed, "group_id" | "title", [
+        Relation<"recruitment_needs_group_id_fkey", "group_id", "research_groups">,
+        { foreignKeyName: "recruitment_needs_project_id_group_id_fkey"; columns: ["project_id", "group_id"]; isOneToOne: false; referencedRelation: "research_projects"; referencedColumns: ["id", "group_id"] }
+      ]>;
+      recommendation_events: Table<RecommendationEvent, "actor_id" | "need_id" | "impression_key" | "algorithm_version" | "context" | "evaluation", [
+        Relation<"recommendation_events_actor_id_fkey", "actor_id", "profiles">,
+        Relation<"recommendation_events_need_id_fkey", "need_id", "recruitment_needs">
+      ]>;
+      recommendation_feedback: Table<RecommendationFeedback, "event_id" | "actor_id" | "response", [
+        { foreignKeyName: "recommendation_feedback_event_id_actor_id_fkey"; columns: ["event_id", "actor_id"]; isOneToOne: true; referencedRelation: "recommendation_events"; referencedColumns: ["id", "actor_id"] },
+        Relation<"recommendation_feedback_actor_id_fkey", "actor_id", "profiles">
+      ]>;
       profiles: Table<Profile, "id" | "full_name", []>;
       research_groups: Table<
         ResearchGroup,
@@ -177,6 +219,22 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      save_recruitment_need: {
+        Args: { p_need_id: string | null; p_group_id: string; p_project_id: string | null; p_title: string; p_description: string; p_required_skills: string[]; p_status: "open" | "closed" };
+        Returns: string;
+      };
+      diagnose_recruitment_need: {
+        Args: { p_need_id: string; p_impression_key: string };
+        Returns: RecommendationEvent;
+      };
+      mark_recommendation_shown: {
+        Args: { p_event_id: string };
+        Returns: undefined;
+      };
+      save_recommendation_feedback: {
+        Args: { p_event_id: string; p_response: "useful" | "not_useful"; p_comment: string };
+        Returns: undefined;
+      };
       request_to_join: {
         Args: { p_group_id: string; p_message?: string | null };
         Returns: JoinRequest;

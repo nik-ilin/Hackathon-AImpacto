@@ -34,6 +34,7 @@ const projectInitial: z.infer<typeof projectSchema> = {
 };
 export function ProjectFormPage() {
   const { session } = useAuth();
+  const userId = session!.user.id;
   const params = useParams();
   const projectId = params.projectId;
   const resource = useResource(
@@ -42,12 +43,12 @@ export function ProjectFormPage() {
       const groupId = project?.group_id ?? params.groupId ?? "";
       const [group, membership, topics, selected] = await Promise.all([
         getGroup(groupId),
-        getOwnMembership(groupId, session!.user.id),
+        getOwnMembership(groupId, userId),
         getTopics(),
         projectId ? getProjectTopics(projectId) : Promise.resolve([]),
       ]);
       return { project, group, membership, topics, selected };
-    }, [projectId, params.groupId, session]),
+    }, [projectId, params.groupId, userId]),
   );
   return (
     <ResourceState {...resource} retry={() => void resource.reload()}>
@@ -302,6 +303,7 @@ export function ProjectDetailPage() {
           >
             {data.group.name}
           </PageHeading>
+          {allowed && <p><Link className="button button-secondary" to={`/projects/${projectId}/needs/new`}>Crear necesidad de incorporación</Link></p>}
           <section className="panel project-detail">
             <div className="badge-row">
               <span className="badge badge-green">

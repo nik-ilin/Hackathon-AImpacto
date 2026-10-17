@@ -28,6 +28,7 @@ import {
   ProjectDetailPage,
   ProjectFormPage,
 } from "../../features/projects/ProjectPages";
+import { NeedsPage, NeedFormPage, NeedDetailPage } from "../../features/matching/MatchingPages";
 import { Link } from "react-router-dom";
 
 export function ProtectedRoute() {
@@ -102,6 +103,11 @@ export function App() {
               <Route path="/groups/:groupId" element={<GroupDetailPage />} />
               <Route path="/groups/:groupId/edit" element={<GroupFormPage />} />
               <Route path="/my-groups" element={<MyGroupsPage />} />
+              <Route path="/needs" element={<NeedsPage />} />
+              <Route path="/needs/:needId" element={<NeedDetailPage />} />
+              <Route path="/needs/:needId/edit" element={<NeedFormPage />} />
+              <Route path="/groups/:groupId/needs/new" element={<NeedFormPage />} />
+              <Route path="/projects/:projectId/needs/new" element={<NeedFormPage />} />
               <Route path="/requests" element={<RequestsPage />} />
               <Route
                 path="/groups/:groupId/projects/new"

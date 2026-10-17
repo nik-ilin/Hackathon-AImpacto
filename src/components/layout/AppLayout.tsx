@@ -21,6 +21,7 @@ const navigation = [
   { to: "/dashboard", label: "Mi espacio", icon: LayoutDashboard },
   { to: "/explore", label: "Explorar grupos", icon: Compass },
   { to: "/my-groups", label: "Mis grupos", icon: Users },
+  { to: "/needs", label: "Necesidades", icon: Compass },
   { to: "/requests", label: "Solicitudes", icon: Inbox },
 ];
 export function Brand() {
