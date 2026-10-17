@@ -423,6 +423,8 @@ function GroupDetail() {
                   .join(" · ") || "Institución no indicada"}
               </span>
             </PageHeading>
+            {manages && <p><Link className="button button-secondary" to={`/groups/${groupId}/needs/new`}>Crear necesidad de incorporación</Link></p>}
+            <p><Link className="text-link" to="/needs">Explorar necesidades de incorporación</Link></p>
             <div className="detail-layout">
               <div className="detail-main">
                 <section className="panel">
