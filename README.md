@@ -69,5 +69,6 @@ Crear migraciones con `npx supabase migration new nombre`. No editar migraciones
 - [Arquitectura](docs/architecture.md), [modelo de datos](docs/database.md), [permisos](docs/permissions.md) y [decisiones](docs/decisions.md).
 - [Lovable, Make, ElevenLabs y Firecrawl](docs/integrations.md): integraciones futuras documentadas, sin escenarios, webhooks, SDK o llamadas ficticias. Este repositorio independiente no se ha importado en Lovable.
 - [Agentes futuros](docs/future-agents.md): ingesta programada, oportunidades normalizadas compartidas, filtros deterministas, deduplicación y medición de costes. No se ejecuta scraping ni LLM por búsqueda.
+- [Importación de perfil](docs/profile-imports.md): ORCID público mediante función Edge y archivos LinkedIn locales, con vista previa y confirmación explícita.
 
 PostgreSQL/Supabase es la única fuente de verdad. Nunca configurar secret keys/service_role en variables VITE, versionar `.env.local`, modificar producción ni desplegar sin autorización.

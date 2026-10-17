@@ -21,6 +21,7 @@ import {
 } from "../../lib/supabase/api";
 import { errorMessage } from "../../lib/errors/messages";
 import { profileSchema, validationMessage } from "../../lib/validation/schemas";
+import { ProfileImport } from "./import/ProfileImport";
 
 const initial: z.infer<typeof profileSchema> = {
   full_name: "",
@@ -149,6 +150,15 @@ function ProfileEditor({
         {success && (
           <Notice success>Perfil e intereses guardados correctamente.</Notice>
         )}
+        <ProfileImport
+          identity={identity}
+          topics={topics}
+          onApply={(fields, topicIds) => {
+            setValues((old) => ({ ...old, ...fields }));
+            setSelected((old) => [...new Set([...old, ...topicIds])]);
+            setSuccess(false);
+          }}
+        />
         <div className="form-grid">
           <Field label="Nombre completo">
             <input
@@ -208,6 +218,7 @@ function ProfileEditor({
               placeholder="0000-0000-0000-000X"
               maxLength={19}
             />
+            <small>Un ORCID introducido manualmente no acredita la titularidad de la cuenta.</small>
           </Field>
         </div>
         <Field label="Sobre tu investigación">

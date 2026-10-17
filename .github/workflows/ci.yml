@@ -36,6 +36,9 @@ jobs:
       - run: npx supabase db advisors --local --type security --level warn --fail-on error
       - run: npm run test:concurrency
       - run: npm run test:integration
+      - run: npm run test:profile-import-edge
+        env:
+          NEXOLAB_EXPECT_ORCID_UNCONFIGURED: "1"
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e:local
       - name: Upload safe E2E diagnostics
