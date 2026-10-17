@@ -87,8 +87,8 @@ export type RecommendationEvent = {
   need_id: string;
   impression_key: string;
   algorithm_version: string;
-  context: Json;
-  evaluation: Json;
+  context: NonNullable<Json>;
+  evaluation: NonNullable<Json>;
   created_at: string;
   shown_at: string | null;
 };
@@ -133,7 +133,7 @@ export type Opportunity = {
   checked_at: string;
   content_hash: string;
   content_version: number;
-  provenance: Json;
+  provenance: NonNullable<Json>;
   created_at: string;
   updated_at: string;
 };
@@ -141,9 +141,9 @@ export type ScholarshipDetail = {
   opportunity_id: string;
   academic_stages: string[];
   degree_areas: string[];
-  residence_requirement: Json;
-  amount: Json;
-  requirements: Json;
+  residence_requirement: NonNullable<Json>;
+  amount: NonNullable<Json>;
+  requirements: NonNullable<Json>;
   missing_information: string[];
   updated_at: string;
 };
@@ -166,15 +166,15 @@ export type FundingDetail = {
   deadline_text: string | null;
   keywords: string[];
   language: string;
-  raw: Json;
+  raw: NonNullable<Json>;
   updated_at: string;
 };
 export type JudyRun = {
   id: string; request_id: string; trigger: "cli" | "make" | "schedule" | "test";
-  parameters: Json; status: "running" | "completed" | "partial" | "failed";
+  parameters: NonNullable<Json>; status: "running" | "completed" | "partial" | "failed";
   lease_token: string; lease_until: string; started_at: string; finished_at: string | null;
   created_count: number; updated_count: number; unchanged_count: number;
-  stats: Json; errors: Json; skipped: Json;
+  stats: NonNullable<Json>; errors: NonNullable<Json>; skipped: NonNullable<Json>;
 };
 export type JudyRunBatch = {
   run_id: string; batch_key: string; payload_hash: string;
@@ -184,7 +184,7 @@ export type OpportunityVersion = {
   opportunity_id: string;
   version: number;
   content_hash: string;
-  snapshot: Json;
+  snapshot: NonNullable<Json>;
   checked_at: string;
   created_at: string;
 };
