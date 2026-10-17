@@ -62,7 +62,7 @@ export async function saveToSupabase(config: SupabaseConfig, report: CollectRepo
         if (url.protocol !== "https:" || url.username || url.password) throw new Error("Judy requires HTTPS source URLs without credentials");
       }
     }
-    const body = { p_run_id: state.run_id, p_lease_token: state.lease_token, p_batch_key: `batch-${String(offset / 200).padStart(4, "0")}`, p_items: items };
+    const body = { p_run_id: state.run_id, p_lease_token: state.lease_token, p_batch_key: `batch-${String(offset / batchSize).padStart(4, "0")}`, p_items: items };
     // Lost responses may have committed: immutable batch keys make retries safe.
     try { await rpc(config, "judy_upsert_opportunities", body); }
     catch (error) {
