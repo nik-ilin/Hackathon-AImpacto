@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 
 export const AuthContext = createContext<{
   session: Session | null;
+  identityEpoch: number;
   loading: boolean;
   error: string | null;
   recovery: boolean;

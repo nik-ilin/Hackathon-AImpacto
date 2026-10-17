@@ -13,6 +13,7 @@ import {
   TopicPicker,
 } from "../../components/ui";
 import { useResource } from "../../hooks/useResource";
+import { useMutationIdentity } from "../../hooks/useMutationIdentity";
 import {
   getGroup,
   getOwnMembership,
@@ -34,6 +35,7 @@ const projectInitial: z.infer<typeof projectSchema> = {
 };
 export function ProjectFormPage() {
   const { session } = useAuth();
+  const userId = session?.user.id ?? "";
   const params = useParams();
   const projectId = params.projectId;
   const resource = useResource(
@@ -42,18 +44,19 @@ export function ProjectFormPage() {
       const groupId = project?.group_id ?? params.groupId ?? "";
       const [group, membership, topics, selected] = await Promise.all([
         getGroup(groupId),
-        getOwnMembership(groupId, session!.user.id),
+        getOwnMembership(groupId, userId),
         getTopics(),
         projectId ? getProjectTopics(projectId) : Promise.resolve([]),
       ]);
       return { project, group, membership, topics, selected };
-    }, [projectId, params.groupId, session]),
+    }, [projectId, params.groupId, userId]),
   );
   return (
     <ResourceState {...resource} retry={() => void resource.reload()}>
       {resource.data && (
         <ProjectEditor
-          key={projectId ?? resource.data.group.id}
+          key={`${userId}:${projectId ?? resource.data.group.id}`}
+          userId={userId}
           projectId={projectId}
           data={resource.data}
         />
@@ -62,9 +65,11 @@ export function ProjectFormPage() {
   );
 }
 function ProjectEditor({
+  userId,
   projectId,
   data,
 }: {
+  userId: string;
   projectId: string | undefined;
   data: {
     project: Tables<"research_projects"> | null;
@@ -74,7 +79,7 @@ function ProjectEditor({
     selected: string[];
   };
 }) {
-  const { session } = useAuth();
+  const identity = useMutationIdentity(userId);
   const navigate = useNavigate();
   const project = data.project;
   const [values, setValues] = useState<z.infer<typeof projectSchema>>(() =>
@@ -115,18 +120,18 @@ function ProjectEditor({
         parsed.data,
         selected,
         data.group.id,
+        identity,
         projectId,
       );
-      navigate(`/projects/${id}`);
+      if (identity.isCurrent()) navigate(`/projects/${id}`);
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (identity.isCurrent()) setError(errorMessage(failure));
     } finally {
-      setBusy(false);
+      if (identity.isCurrent()) setBusy(false);
     }
   }
   const allowed =
-    data.group.owner_id === session!.user.id ||
-    data.membership?.role === "admin";
+    data.group.owner_id === userId || data.membership?.role === "admin";
   return (
     <>
       <PageHeading
@@ -200,9 +205,7 @@ function ProjectEditor({
                 <option value="private">
                   Privado: integrantes autorizados del grupo
                 </option>
-                {data.group.visibility === "public" && (
-                  <option value="public">Público</option>
-                )}
+                <option value="public">Público</option>
               </select>
             </Field>
             <Field label="Financiación necesaria (opcional)">
@@ -230,6 +233,14 @@ function ProjectEditor({
               />
             </Field>
           </div>
+          {data.group.visibility === "private" && (
+            <Notice success>
+              El grupo es privado: un proyecto público no puede descubrirse
+              públicamente mientras el grupo siga siendo privado. La visibilidad
+              del proyecto solo cambia cuando la eliges y guardas
+              explícitamente.
+            </Notice>
+          )}
           <p className="muted small">
             La financiación se registra para describir las necesidades del
             proyecto. El matching de convocatorias llegará en una próxima etapa.
@@ -257,12 +268,13 @@ function ProjectEditor({
 export function ProjectDetailPage() {
   const { projectId = "" } = useParams();
   const { session } = useAuth();
+  const userId = session?.user.id ?? "";
   const resource = useResource(
     useCallback(async () => {
       const project = await getProject(projectId);
       const [group, membership, topics, selected] = await Promise.all([
         getGroup(project.group_id),
-        getOwnMembership(project.group_id, session!.user.id),
+        getOwnMembership(project.group_id, userId),
         getTopics(),
         getProjectTopics(projectId),
       ]);
@@ -272,12 +284,11 @@ export function ProjectDetailPage() {
         membership,
         topics: topics.filter((topic) => selected.includes(topic.id)),
       };
-    }, [projectId, session]),
+    }, [projectId, userId]),
   );
   const data = resource.data;
   const allowed =
-    data?.group.owner_id === session!.user.id ||
-    data?.membership?.role === "admin";
+    data?.group.owner_id === userId || data?.membership?.role === "admin";
   return (
     <ResourceState {...resource} retry={() => void resource.reload()}>
       {data && (
@@ -302,6 +313,7 @@ export function ProjectDetailPage() {
           >
             {data.group.name}
           </PageHeading>
+          {allowed && <p><Link className="button button-secondary" to={`/projects/${projectId}/needs/new`}>Crear necesidad de incorporación</Link></p>}
           <section className="panel project-detail">
             <div className="badge-row">
               <span className="badge badge-green">

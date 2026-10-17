@@ -24,9 +24,10 @@ async function request(groupId: string, applicant=B) {
 }
 beforeAll(async()=>{
   db=new PGlite()
-  await db.exec(`create role anon; create role authenticated;
+  await db.exec(`create role anon; create role authenticated; create role service_role;
     create schema auth; create table auth.users(id uuid primary key);
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+    create function auth.role() returns text language sql stable as $$ select current_user::text $$;
     grant usage on schema auth,public to anon,authenticated;
     grant execute on function auth.uid() to anon,authenticated;`)
   for(const file of readdirSync('supabase/migrations').filter(f=>f.endsWith('.sql')).sort()) {
@@ -162,8 +163,11 @@ describe('M1 actual PostgreSQL migrations, RLS and atomic collaboration (PGlite)
     await expect(db.query('delete from auth.users where id=$1',[A])).rejects.toThrow('foreign key')
   })
   it('all exposed tables have RLS; public API is invoker; anon cannot run mutation RPC',async()=>{
-    const rows=await db.query<{relname:string;relrowsecurity:boolean}>("select relname,relrowsecurity from pg_class join pg_namespace n on n.oid=relnamespace where n.nspname='public' and relkind='r'")
-    expect(rows.rows.length).toBe(9); expect(rows.rows.every(x=>x.relrowsecurity)).toBe(true)
+    const rows=await db.query<{relname:string;relrowsecurity:boolean}>("select relname,relrowsecurity from pg_class join pg_namespace n on n.oid=relnamespace where n.nspname='public' and relkind in ('r','p')")
+    expect(rows.rows.map(x=>x.relname)).toEqual(expect.arrayContaining([
+      'profiles','research_groups','group_memberships','group_join_requests','research_projects',
+      'topics','profile_topics','group_topics','project_topics','recruitment_needs','recommendation_events','recommendation_feedback',
+    ])); expect(rows.rows.every(x=>x.relrowsecurity)).toBe(true)
     const funcs=await db.query<{prosecdef:boolean}>("select prosecdef from pg_proc join pg_namespace n on n.oid=pronamespace where n.nspname='public'")
     expect(funcs.rows.every(x=>!x.prosecdef)).toBe(true)
     await expect(as(null,'select public.request_to_join($1,null)',[await group()])).rejects.toThrow('permission denied')

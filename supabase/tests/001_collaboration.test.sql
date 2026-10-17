@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public,extensions;
-select plan(21);
+select plan(22);
 
 insert into auth.users(id) values
  ('30000000-0000-0000-0000-000000000001'),
@@ -14,7 +14,8 @@ insert into public.profiles(id,full_name) values
 insert into public.research_groups(id,owner_id,name,visibility,accepting_members) values
  ('40000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000001','Grupo Física','public',true);
 insert into public.group_topics(group_id,topic_id) values('40000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001');
-select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and c.relrowsecurity),9,'all nine public tables use RLS');
+select ok(not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p') and not c.relrowsecurity),'every public table uses RLS');
+select ok(not exists(select 1 from unnest(array['profiles','research_groups','group_memberships','group_join_requests','research_projects','topics','profile_topics','group_topics','project_topics','recruitment_needs','recommendation_events','recommendation_feedback']) t where to_regclass('public.'||t) is null),'all expected exposed tables exist');
 select ok(not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.prosecdef),'public functions use SECURITY INVOKER');
 
 set local role anon;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseOrcidId } from "../../features/profiles/import/orcid-id";
 
 const optionalText = (max: number) =>
   z.string().trim().max(max, `Máximo ${max} caracteres.`);
@@ -36,8 +37,15 @@ export const profileSchema = z.object({
     "Indica un máximo de 50 competencias.",
   ),
   orcid_id: optionalText(19).refine(
-    (v) => !v || /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/.test(v),
-    "Formato ORCID: 0000-0000-0000-000X.",
+    (v) => {
+      if (!v) return true;
+      try {
+        return parseOrcidId(v) === v;
+      } catch {
+        return false;
+      }
+    },
+    "Introduce un ORCID iD válido con dígito de control correcto.",
   ),
   visibility: z.enum(["public", "private"]),
 });

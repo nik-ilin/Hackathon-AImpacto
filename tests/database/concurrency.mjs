@@ -51,6 +51,35 @@ try {
   assert.equal(state.rows[0].status, 'approved')
   assert.equal(state.rows[0].decided_by, owner)
   console.log('PASS: two PostgreSQL sessions approved concurrently; one membership; one coherent approved request.')
+  // Serialize two real sessions on the same diagnostic impression key.
+  await setup.query('set role authenticated')
+  await setup.query("select set_config('request.jwt.claim.sub',$1,false)", [owner])
+  const need = (await setup.query("select public.save_recruitment_need(null,$1,null,'Concurrent need','',array['SQL'],'open') id", [group])).rows[0].id
+  await setup.query('reset role')
+  const key = randomUUID()
+  await setup.query('begin')
+  await setup.query("select pg_advisory_xact_lock(hashtextextended($1::text || $2::text,0))", [owner,key])
+  const diagnostics = Promise.all([first,second].map(client => client.query('select * from public.diagnose_recruitment_need($1,$2)',[need,key])))
+  diagnostics.catch(() => {})
+  let diagnosticWaiters = 0
+  const diagnosticDeadline = Date.now() + 5000
+  while (Date.now() < diagnosticDeadline) {
+    diagnosticWaiters = Number((await setup.query("select count(*) n from pg_stat_activity where pid=any($1::int[]) and wait_event_type='Lock'",[pids])).rows[0].n)
+    if (diagnosticWaiters === 2) break
+    await new Promise(resolve => setTimeout(resolve,50))
+  }
+  assert.equal(diagnosticWaiters,2,'both diagnostic sessions wait on the same impression lock')
+  await setup.query('commit')
+  const [diagnosticA,diagnosticB] = await diagnostics
+  const event = diagnosticA.rows[0]
+  assert.equal(event.id,diagnosticB.rows[0].id)
+  assert.deepEqual(event.evaluation,diagnosticB.rows[0].evaluation)
+  assert.equal(Number((await setup.query('select count(*) n from public.recommendation_events where actor_id=$1 and impression_key=$2',[owner,key])).rows[0].n),1)
+  await Promise.all([first,second].map(client=>client.query('select public.mark_recommendation_shown($1)',[event.id])))
+  await Promise.all([first,second].map(client=>client.query("select public.save_recommendation_feedback($1,'useful','Concurrent retry')",[event.id])))
+  assert.equal(Number((await setup.query('select count(*) n from public.recommendation_feedback where event_id=$1',[event.id])).rows[0].n),1)
+  console.log('PASS: concurrent diagnostic retries create one immutable event, one shown marker and one feedback row.')
+
 } finally {
   await setup.query('rollback').catch(() => {})
   await Promise.all(clients.map(client => client.end().catch(() => {})))

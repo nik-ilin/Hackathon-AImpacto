@@ -1,5 +1,5 @@
 import { useCallback, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { z } from "zod";
 import type { Tables } from "../../types/database";
 import { useAuth } from "../../app/providers/auth-context";
@@ -12,6 +12,7 @@ import {
   TopicPicker,
 } from "../../components/ui";
 import { useResource } from "../../hooks/useResource";
+import { useMutationIdentity } from "../../hooks/useMutationIdentity";
 import {
   getProfile,
   getProfileTopics,
@@ -20,6 +21,7 @@ import {
 } from "../../lib/supabase/api";
 import { errorMessage } from "../../lib/errors/messages";
 import { profileSchema, validationMessage } from "../../lib/validation/schemas";
+import { ProfileImport } from "./import/ProfileImport";
 
 const initial: z.infer<typeof profileSchema> = {
   full_name: "",
@@ -50,6 +52,7 @@ export function ProfilePage({ onboarding = false }: { onboarding?: boolean }) {
       {resource.data && (
         <ProfileEditor
           key={userId}
+          userId={userId}
           profile={resource.data.profile}
           topics={resource.data.topics}
           initialSelected={resource.data.selected}
@@ -60,17 +63,27 @@ export function ProfilePage({ onboarding = false }: { onboarding?: boolean }) {
   );
 }
 function ProfileEditor({
+  userId,
   profile,
   topics,
   initialSelected,
   onboarding,
 }: {
+  userId: string;
   profile: Tables<"profiles"> | null;
   topics: Tables<"topics">[];
   initialSelected: string[];
   onboarding: boolean;
 }) {
   const navigate = useNavigate();
+  const identity = useMutationIdentity(userId);
+  const location = useLocation();
+  const from: unknown = (location.state as { from?: unknown } | null)?.from;
+  const returnTo =
+    typeof from === "string" &&
+    /^\/(groups(?:\/|$)|explore(?:\?|$)|my-groups(?:\?|$))/.test(from)
+      ? from
+      : null;
   const [values, setValues] = useState<z.infer<typeof profileSchema>>(() =>
     profile
       ? {
@@ -109,13 +122,14 @@ function ProfileEditor({
     }
     setBusy(true);
     try {
-      await saveProfile(parsed.data, selected);
-      if (onboarding) navigate(intent);
+      await saveProfile(parsed.data, selected, identity);
+      if (!identity.isCurrent()) return;
+      if (onboarding) navigate(returnTo ?? intent);
       else setSuccess(true);
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (identity.isCurrent()) setError(errorMessage(failure));
     } finally {
-      setBusy(false);
+      if (identity.isCurrent()) setBusy(false);
     }
   }
   return (
@@ -136,6 +150,15 @@ function ProfileEditor({
         {success && (
           <Notice success>Perfil e intereses guardados correctamente.</Notice>
         )}
+        <ProfileImport
+          identity={identity}
+          topics={topics}
+          onApply={(fields, topicIds) => {
+            setValues((old) => ({ ...old, ...fields }));
+            setSelected((old) => [...new Set([...old, ...topicIds])]);
+            setSuccess(false);
+          }}
+        />
         <div className="form-grid">
           <Field label="Nombre completo">
             <input
@@ -195,6 +218,7 @@ function ProfileEditor({
               placeholder="0000-0000-0000-000X"
               maxLength={19}
             />
+            <small>Un ORCID introducido manualmente no acredita la titularidad de la cuenta.</small>
           </Field>
         </div>
         <Field label="Sobre tu investigación">

@@ -22,3 +22,22 @@ Funciones privilegiadas se mantienen en esquema privado con `search_path` seguro
 M1 no ofrece transferencia de propiedad, borrado de historial, elevación libre de roles ni administración global. Añadir esas capacidades exige diseño y pruebas de permisos específicos.
 
 Pruebas: Vitest ejecuta migraciones reales sobre PostgreSQL embebido con roles/identidad controlados; pgTAP y pruebas Auth/REST/concurrencia se ejecutan con Supabase local. Los stubs de identidad del entorno embebido no prueban Supabase Auth.
+
+## Necesidades y diagnósticos personales
+
+| Recurso/operación | Usuario autenticado sin relación | Propietario | Admin | Miembro | Autor del diagnóstico |
+| --- | --- | --- | --- | --- | --- |
+| Leer necesidad | Si grupo y proyecto asociado son públicos | Sí | Sí | Si puede leer el grupo y proyecto | Sí, si puede leer la necesidad |
+| Crear/editar necesidad | No | Sí | Sí | No | No |
+| Diagnosticar capacidades propias | No | Sobre perfil propio | Sobre perfil propio | Sobre perfil propio | Sí |
+| Leer evaluación o feedback | No | No por gestionar el grupo | No por gestionar el grupo | No por ser miembro | Sí |
+| Registrar feedback | No | No | No | No | Solo en evaluación mostrada propia |
+
+No se consultan perfiles privados de terceros ni se recomiendan candidatos. Abrir futuras recomendaciones de personas requeriría autorización de visibilidad y preferencia explícita de participación. Una necesidad asociada a proyecto privado permanece invisible a quien no puede leer ese proyecto, aunque el grupo sea público.
+
+
+## Consolidación financiación
+
+`funding_details` hereda visibilidad por la oportunidad canónica mediante RLS; anon carece de lectura. El cliente autenticado no escribe catálogo, versiones ni ejecuciones. Las RPC Judy y contabilidad Raúl solo conceden EXECUTE a service_role y comprueban el rol en su cuerpo privado SECURITY DEFINER con search_path vacío; wrappers públicos SECURITY INVOKER. Ni Make ni Lovable reciben claves de servicio. Matching fija el JWT de la identidad original también en diagnóstico, marcado mostrado y feedback.
+
+La inspección remota confirmó EXECUTE por defecto en public.rls_auto_enable() (event_trigger, no RPC ordinaria). La migración local revoca clientes condicionalmente y conserva el trigger. No se modificó el proyecto remoto; la corrección manual y sus comprobaciones están en lovable-backend-handoff.md.
