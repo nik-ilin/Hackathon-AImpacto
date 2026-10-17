@@ -202,6 +202,40 @@ assert.equal(
   0,
   "Perfil privado no se revela",
 );
+// Extended local journey: needs -> own diagnostic -> shown -> explicit feedback.
+const needId = await check(a.client.rpc("save_recruitment_need", {
+  p_need_id: null, p_group_id: groupId, p_project_id: projectId,
+  p_title: "Analista de datos", p_description: "Necesidad local",
+  p_required_skills: ["análisis", "Python"], p_status: "open",
+}));
+assert.ok((await c.client.rpc("diagnose_recruitment_need", {
+  p_need_id: needId, p_impression_key: randomUUID(),
+})).error, "Proyecto privado no filtra diagnóstico");
+const impressionKey = randomUUID();
+const diagnosis = await check(b.client.rpc("diagnose_recruitment_need", {
+  p_need_id: needId, p_impression_key: impressionKey,
+}));
+assert.equal(diagnosis.evaluation.coverage, 0.5);
+assert.deepEqual(diagnosis.evaluation.missing_skills, ["python"]);
+assert.equal(diagnosis.shown_at, null);
+const retry = await check(b.client.rpc("diagnose_recruitment_need", {
+  p_need_id: needId, p_impression_key: impressionKey,
+}));
+assert.equal(retry.id, diagnosis.id);
+assert.ok((await b.client.rpc("save_recommendation_feedback", {
+  p_event_id: diagnosis.id, p_response: "useful", p_comment: "",
+})).error, "No feedback antes de visualización");
+await check(b.client.rpc("mark_recommendation_shown", { p_event_id: diagnosis.id }));
+assert.equal((await check(b.client.from("recommendation_feedback").select("*").eq("event_id", diagnosis.id))).length, 0);
+await check(b.client.rpc("save_recommendation_feedback", {
+  p_event_id: diagnosis.id, p_response: "useful", p_comment: "Explicación clara",
+}));
+assert.equal((await check(a.client.from("recommendation_events").select("*").eq("id", diagnosis.id))).length, 0, "Gestor no lee diagnóstico privado");
+assert.ok((await a.client.rpc("save_recommendation_feedback", {
+  p_event_id: diagnosis.id, p_response: "not_useful", p_comment: "Intrusión",
+})).error);
+assert.equal((await check(b.client.from("recommendation_feedback").select("*").eq("event_id", diagnosis.id))).length, 1);
+console.log("PASS: necesidad, diagnóstico propio, idempotencia, visualización y feedback vía Auth/REST; privacidad de proyecto y perfil conservada.");
 for (const user of users) await check(user.client.auth.signOut());
 console.log(
   "PASS: colaboración real Supabase Auth + REST + RPC, A–J y L–N. K se verifica con test:concurrency. Datos exclusivamente locales.",

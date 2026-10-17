@@ -313,6 +313,7 @@ export function ProjectDetailPage() {
           >
             {data.group.name}
           </PageHeading>
+          {allowed && <p><Link className="button button-secondary" to={`/projects/${projectId}/needs/new`}>Crear necesidad de incorporación</Link></p>}
           <section className="panel project-detail">
             <div className="badge-row">
               <span className="badge badge-green">

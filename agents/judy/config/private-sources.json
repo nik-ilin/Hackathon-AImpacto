@@ -1,0 +1,9 @@
+{
+  "_comment": "Páginas de fundaciones que Judy revisa con extracción por LLM. Añadir solo páginas públicas de convocatorias; revisar sus condiciones de uso. Las URLs de ejemplo proceden de los enlaces oficiales publicados por la OTRI de la UCM.",
+  "pages": [
+    { "id": "fundacion-ramon-areces", "funder_name": "Fundación Ramón Areces", "url": "https://www.fundacionareces.es/fundacionareces/es/convocatorias/becas-y-ayudas/" },
+    { "id": "fundacion-pasqual-maragall", "funder_name": "Fundación Pasqual Maragall", "url": "https://fpmaragall.org/convocatorias-de-investigacion/" },
+    { "id": "caixaresearch-salud", "funder_name": "Fundación \"la Caixa\"", "url": "https://caixaresearch.org/es/convocatoria-caixaresearch-investigacion-salud" },
+    { "id": "aecc-investigador", "funder_name": "Fundación Científica AECC", "url": "https://www.contraelcancer.es/es/area-investigador/ayudas/talento/investigador-aecc-2027" }
+  ]
+}
