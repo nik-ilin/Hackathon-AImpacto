@@ -40,9 +40,15 @@ export const finishRun = (config: SupabaseConfig, state: RunState, report: Omit<
 
 /** Diagnostics include only batch index and sanitized transport status, never URLs or payloads. */
 export class JudyBatchError extends Error {
-  constructor(readonly batchIndex: number, readonly httpStatus: number | null, readonly rpcCode: string | null) {
+  readonly batchIndex: number;
+  readonly httpStatus: number | null;
+  readonly rpcCode: string | null;
+  constructor(batchIndex: number, httpStatus: number | null, rpcCode: string | null) {
     super(`Funding batch ${batchIndex} failed (HTTP ${httpStatus ?? "unknown"}, RPC ${rpcCode ?? "unknown"})`);
     this.name = "JudyBatchError";
+    this.batchIndex = batchIndex;
+    this.httpStatus = httpStatus;
+    this.rpcCode = rpcCode;
   }
 }
 
