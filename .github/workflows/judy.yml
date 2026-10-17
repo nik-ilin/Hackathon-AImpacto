@@ -15,7 +15,11 @@ on:
       since_days:
         description: "BDNS lookback, integer 1..365"
         required: false
-        default: "120"
+        default: "30"
+      max_per_source:
+        description: "Maximum opportunity records per source (1..1000)"
+        required: false
+        default: "50"
 permissions:
   contents: read
 concurrency:
@@ -47,10 +51,11 @@ jobs:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           FIRECRAWL_MAX_AGE_MS: "86400000"
           JUDY_SOURCES: ${{ inputs.sources || 'bdns,eu_funding_tenders,ucm_otri' }}
-          JUDY_SINCE_DAYS: ${{ inputs.since_days || '120' }}
+          JUDY_SINCE_DAYS: ${{ inputs.since_days || '30' }}
+          JUDY_MAX_PER_SOURCE: ${{ inputs.max_per_source || '50' }}
           JUDY_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'make' }}
           JUDY_REQUEST_ID: ${{ inputs.request_id || format('github-{0}', github.run_id) }}
-        run: npm run collect -- --request-id "$JUDY_REQUEST_ID" --trigger "$JUDY_TRIGGER" --sources "$JUDY_SOURCES" --since-days "$JUDY_SINCE_DAYS" --out data
+        run: npm run collect -- --request-id "$JUDY_REQUEST_ID" --trigger "$JUDY_TRIGGER" --sources "$JUDY_SOURCES" --since-days "$JUDY_SINCE_DAYS" --max "$JUDY_MAX_PER_SOURCE" --out data
       - uses: actions/upload-artifact@v4
         if: always()
         with:

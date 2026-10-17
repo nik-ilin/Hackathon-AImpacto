@@ -38,21 +38,42 @@ export const renewRun = (config: SupabaseConfig, state: RunState) => rpc(config,
 export const finishRun = (config: SupabaseConfig, state: RunState, report: Omit<CollectReport, "items">) =>
   rpc<RunState>(config, "judy_finish_run", { p_run_id: state.run_id, p_lease_token: state.lease_token, p_report: report });
 
+/** Diagnostics include only batch index and sanitized transport status, never URLs or payloads. */
+export class JudyBatchError extends Error {
+  readonly batchIndex: number;
+  readonly httpStatus: number | null;
+  readonly rpcCode: string | null;
+  constructor(batchIndex: number, httpStatus: number | null, rpcCode: string | null) {
+    super(`Funding batch ${batchIndex} failed (HTTP ${httpStatus ?? "unknown"}, RPC ${rpcCode ?? "unknown"})`);
+    this.name = "JudyBatchError";
+    this.batchIndex = batchIndex;
+    this.httpStatus = httpStatus;
+    this.rpcCode = rpcCode;
+  }
+}
+
 export async function saveToSupabase(config: SupabaseConfig, report: CollectReport, state: RunState) {
-  for (let offset = 0; offset < report.items.length; offset += 200) {
-    const items: StoredOpportunity[] = report.items.slice(offset, offset + 200);
+  const batchSize = 50; // Bound payload size and make failed slices auditable.
+  for (let offset = 0; offset < report.items.length; offset += batchSize) {
+    const items: StoredOpportunity[] = report.items.slice(offset, offset + batchSize);
     for (const item of items) {
       for (const value of [item.url, item.source_url, item.bases_url].filter(Boolean)) {
         const url = new URL(value!);
         if (url.protocol !== "https:" || url.username || url.password) throw new Error("Judy requires HTTPS source URLs without credentials");
       }
     }
-    const body = { p_run_id: state.run_id, p_lease_token: state.lease_token, p_batch_key: `batch-${String(offset / 200).padStart(4, "0")}`, p_items: items };
+    const body = { p_run_id: state.run_id, p_lease_token: state.lease_token, p_batch_key: `batch-${String(offset / batchSize).padStart(4, "0")}`, p_items: items };
     // Lost responses may have committed: immutable batch keys make retries safe.
     try { await rpc(config, "judy_upsert_opportunities", body); }
     catch (error) {
-      if (error instanceof StoreError && error.status < 500) throw error;
-      await rpc(config, "judy_upsert_opportunities", body);
+      if (error instanceof StoreError && error.status < 500) {
+        throw new JudyBatchError(offset / batchSize, error.status, error.code ?? null);
+      }
+      try { await rpc(config, "judy_upsert_opportunities", body); }
+      catch (retryError) {
+        throw new JudyBatchError(offset / batchSize, retryError instanceof StoreError ? retryError.status : null,
+          retryError instanceof StoreError ? retryError.code ?? null : null);
+      }
     }
   }
   const metadata = { started_at: report.started_at, finished_at: report.finished_at, stats: report.stats, errors: report.errors, skipped: report.skipped };

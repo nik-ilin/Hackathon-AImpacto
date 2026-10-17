@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { beginRun, saveToSupabase, supabaseConfigFromEnv, type SupabaseConfig } from "../src/store/supabase.ts";
+import { beginRun, JudyBatchError, saveToSupabase, supabaseConfigFromEnv, type SupabaseConfig } from "../src/store/supabase.ts";
 import { parameters, requestId, runCollection } from "../src/runner.ts";
 import type { CollectReport } from "../src/pipeline.ts";
 
@@ -106,5 +106,29 @@ describe("canonical RPC adapter and durable runner", () => {
     });
     await expect(runCollection({ requestId: "bad", trigger: "cli", params }, { config, collectReport: async () => { throw new Error("failed source"); } })).rejects.toThrow("failed source");
     expect(failed).toBe(true);
+  });
+
+  it("writes bounded batches of 50 and reports sanitized failing batch index", async () => {
+    const sent: { p_batch_key: string; p_items: unknown[] }[] = [];
+    const config = store((name, body) => {
+      if (name === "judy_upsert_opportunities") {
+        sent.push(body as { p_batch_key: string; p_items: unknown[] });
+        if (body.p_batch_key === "batch-0001") return response({ code: "22023", message: "Sensitive secret should never print" }, 400);
+      }
+      return response({ run_id: state.run_id, status: "completed" });
+    });
+    const items = Array.from({ length: 51 }, (_, i) => ({
+      source: "bdns", external_id: String(i), url: "https://official.example/x",
+      source_url: "https://official.example/x", bases_url: null,
+    })) as CollectReport["items"];
+    let failure: unknown;
+    try { await saveToSupabase(config, { ...empty, items }, state); }
+    catch (error) { failure = error; }
+    expect(failure).toBeInstanceOf(JudyBatchError);
+    expect((failure as JudyBatchError).batchIndex).toBe(1);
+    expect((failure as JudyBatchError).httpStatus).toBe(400);
+    expect(String(failure)).not.toContain("Sensitive");
+    expect(sent.map(batch => batch.p_items.length)).toEqual([50, 1]);
+    expect(sent.map(batch => batch.p_batch_key)).toEqual(["batch-0000", "batch-0001"]);
   });
 });
