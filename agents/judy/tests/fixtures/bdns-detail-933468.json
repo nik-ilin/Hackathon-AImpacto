@@ -1,0 +1,17 @@
+{
+  "abierto": false, "anuncios": [], "ayudaEstado": null, "codigoBDNS": "933468",
+  "descripcion": "Ayuda para realizar estancias predoctorales en EEUU de estudiantes que realizan su doctorado en universidades navarras.",
+  "descripcionBasesReguladoras": "Resolución 209E/2026, de 5 de octubre, de la Directora G. Ciencia  “Becas Fulbright de investigación predoctoral específicas para doctorandas y doctorandos de universidades de la Comunidad Foral de Navarra. Curso 2027-2028",
+  "descripcionFinalidad": "Investigación, desarrollo e innovación", "descripcionLeng": null,
+  "documentos": [{ "datMod": "2026-10-05", "datPublicacion": "2026-10-05", "descripcion": "Texto en castellano de la convocatoria", "id": 1532008, "long": 471478, "nombreFic": "Resolución de aprobación de las BBRR_becas fulbright curso 27-28_209E-2026.pdf" }],
+  "fechaFinSolicitud": "2026-11-03", "fechaInicioSolicitud": "2026-09-15", "fechaRecepcion": "2026-10-05", "fondos": [], "id": 1135029,
+  "instrumentos": [{ "descripcion": "SUBVENCIÓN Y ENTREGA DINERARIA SIN CONTRAPRESTACIÓN " }], "mrr": false, "objetivos": [],
+  "organo": { "nivel1": "AUTONOMICA", "nivel2": "COMUNIDAD FORAL DE NAVARRA", "nivel3": "DEPARTAMENTO DE UNIVERSIDAD, INNOVACION Y TRANSFORMACION DIGITAL" },
+  "presupuestoTotal": 55000, "regiones": [{ "descripcion": "ES22 - COMUNIDAD FORAL DE NAVARRA" }], "reglamento": null, "sePublicaDiarioOficial": true,
+  "sectores": [{ "codigo": "72", "descripcion": "Investigación y desarrollo" }], "sectoresProductos": [], "sedeElectronica": "www.navarra.es",
+  "textFin": "Establecido en 9ª Convocatoria Becas Fulbright de Investigación Predoctoral para el curso 2027-2028",
+  "textInicio": "Establecido en 9ª Convocatoria Becas Fulbright de Investigación Predoctoral para el curso 2027-2028",
+  "tipoConvocatoria": "Concurrencia competitiva - canónica",
+  "tiposBeneficiarios": [{ "descripcion": "PERSONAS FÍSICAS QUE NO DESARROLLAN ACTIVIDAD ECONÓMICA" }],
+  "urlAyudaEstado": null, "urlBasesReguladoras": "www.navarra.es"
+}

@@ -1,0 +1,15 @@
+{
+  "abierto": false, "anuncios": [], "ayudaEstado": null, "codigoBDNS": "935984",
+  "descripcion": "Subvención Nominativa 2026, Ayuntamiento Málaga",
+  "descripcionBasesReguladoras": "Ley 8/2025, de 22 de diciembre, del Presupuesto de la Comunidad Autónoma de Andalucía para el año 2026",
+  "descripcionFinalidad": "Investigación, desarrollo e innovación", "descripcionLeng": null, "documentos": [],
+  "fechaFinSolicitud": null, "fechaInicioSolicitud": null, "fechaRecepcion": "2026-10-16", "fondos": [], "id": 1137545,
+  "instrumentos": [{ "descripcion": "SUBVENCIÓN Y ENTREGA DINERARIA SIN CONTRAPRESTACIÓN " }], "mrr": false, "objetivos": [],
+  "organo": { "nivel1": "AUTONOMICA", "nivel2": "ANDALUCÍA", "nivel3": "AGENCIA DIGITAL DE ANDALUCÍA" },
+  "presupuestoTotal": 499903.82, "regiones": [{ "descripcion": "ES617 - Málaga" }], "reglamento": null, "sePublicaDiarioOficial": false,
+  "sectores": [{ "codigo": "84.1", "descripcion": "Administración pública y de la política económica, social y medioambiental" }],
+  "sectoresProductos": [], "sedeElectronica": null, "textFin": "Sin plazo de solicitud", "textInicio": "Sin plazo de solicitud",
+  "tipoConvocatoria": "Concesión directa - instrumental",
+  "tiposBeneficiarios": [{ "descripcion": "PERSONAS JURÍDICAS QUE NO DESARROLLAN ACTIVIDAD ECONÓMICA" }],
+  "urlAyudaEstado": null, "urlBasesReguladoras": "https://juntadeandalucia.es/boja/2025/251/2"
+}

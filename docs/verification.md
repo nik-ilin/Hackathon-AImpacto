@@ -1,42 +1,34 @@
-# Evidencia de verificación M1
+# Evidencia de verificación: Raúl y base de integración
 
-Entorno Windows/PowerShell, Node 24.14.1, npm 11.11.0. Fecha local: 17 de octubre de 2026. Repositorio inicialmente vacío; el único commit realizado es `e138871` para inicializar `main`, autorizado por la solicitud. La implementación permanece sin commit en `feature/bootstrap-infrastructure`.
+Fecha de trabajo: 17 de octubre de 2026. Cambios **locales y sin commit** en la rama `codex/raul-scholarships`, checkout `/private/tmp/nexolab-raul`. No se han aplicado migraciones a una base compartida, desplegado Edge Functions ni activado Make.
 
-## Ejecutado
+## Git y base
 
-- Instalación npm con dependencias fijadas y lockfile: correcta; auditoría npm, **0 vulnerabilidades**.
-- Vitest final: **45/45 pruebas superadas en 3/3 archivos**, código de salida 0, duración 19,59 s. Incluye **16 SQL/PGlite**, **23 validaciones** y **6 componentes/hooks**. El SQL ejecuta la migración real con roles anon/authenticated y `auth.uid()` de prueba; el reviewer también ejecutó esta suite.
-- TypeScript: `npm run typecheck`, **código de salida 0**.
-- Chromium público: **2 pruebas superadas, 1 omitida**. Verifica landing, navegación, viewport móvil sin desbordamiento horizontal, ausencia de errores JavaScript e instrucciones reales cuando falta backend. Se inspeccionaron visualmente capturas de escritorio y móvil.
-- ESLint: `npm run lint`, **código de salida 0, sin warnings**; no se desactivaron reglas para ocultar fallos.
-- Build de producción: `npm run build`, **código de salida 0**, duración 5,14 s. Aviso de Vite por chunk JavaScript de **622,25 kB** (179,38 kB gzip); optimización futura mediante carga por rutas. No se elevó el límite del aviso.
-- La sintaxis de los runners de integración y concurrencia se comprobó con Node; `git diff --check` terminó con código de salida 0.
+Se leyó `AGENTS.md`, se inspeccionó Git y se ejecutó `git fetch origin --prune`. `origin/feature/bootstrap-infrastructure` sigue en `8d8eb8d`; `origin/fix/m1-review-findings` está en `9720384` y contiene correcciones posteriores; `origin/codex/matching-diagnostics-feedback` está en `69f5613`. `origin/feature/judy-recopilador` (`6f80877`) parte de `main` y no integra esas ramas. El checkout Raúl parte de `fix/m1-review-findings` y porta el diff de matching, resolviendo los conflictos de proyecto y E2E. La carpeta original tiene `.git` de solo lectura en este entorno; por eso se usa un checkout local aislado. No se ha hecho merge, commit ni push.
 
-Las pruebas unitarias de componentes/hooks comprueban controles etiquetados, paginación, mensajes, explicaciones SQL y protección ante respuestas obsoletas; no se presentan como evidencia de persistencia remota.
+Judy se revisó como código en desarrollo: contiene adaptadores y un tipo `FundingOpportunity`, pero invoca RPC no presentes (`judy_upsert_opportunities`, `judy_record_run`) y su script de servidor no tiene el archivo de entrada esperado. Raúl comparte las columnas generales de `opportunities`; `scholarship_details` conserva los requisitos específicos de estudiante. No se afirma que Judy funcione por esta integración.
 
-## Comprobaciones preparadas, sin resultado de éxito
+## Comprobaciones ejecutadas
 
-| Comprobación                                         | Estado observado                                                                                |
-| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `npm run db:start`                                   | No puede iniciar: `DockerLifecycleInspectError`, Docker/Podman no disponible en PATH            |
-| pgTAP, 21 aserciones                                 | `DbConnectError` / `ECONNREFUSED 127.0.0.1:54322`; no hay PostgreSQL local iniciado             |
-| Concurrencia multiconexión                           | `ECONNREFUSED 127.0.0.1:54322`; script listo con tres conexiones y espera explícita de bloqueos |
-| Integración Auth + REST + RPC                        | Runner falla antes de crear usuarios: Supabase local no disponible                              |
-| Colaboración completa en Chromium                    | Omitida en modo sin backend; preparada mediante `npm run test:e2e:local`                        |
-| CLI lint/advisors, tipos generados y workflow GitHub | Requieren stack local/runner; configuración no equivale a ejecución superada                    |
+| Comprobación | Resultado |
+| --- | --- |
+| `npm ci --offline --no-audit --no-fund` | 279 paquetes instalados desde caché; código 0. |
+| `npm run typecheck` | Código 0. |
+| `npm run lint` | Código 0, sin avisos. |
+| `npm test` | **105/105 pruebas en 11 archivos**, código 0. Incluye migraciones reales en PGlite, M1/matching, extracción Raúl, fechas, requisitos desconocidos, secreto ausente, tres fixtures oficiales, RLS, deduplicación, cambio de plazo, versión e idempotencia de RPC. |
+| `npm run build` | Código 0. Vite produjo un chunk de 651.14 kB y avisó por superar 500 kB. |
+| `git diff --check` | Código 0. |
 
-No se utilizaron credenciales ni servicios remotos. Los runners que escriben fixtures rechazan hosts fuera de loopback. No se han modificado datos de producción, aplicado migraciones remotas, hecho push/merge ni desplegado.
+La revisión independiente detectó y se corrigieron: IDs de seed distintos de la ingesta, plazo fijo que impedía actualizaciones, fecha sin hora con offset incorrecto, perfil `student` marcado compatible con Grado/Máster, ficha visible tras fallo de extracción y auditoría separada del upsert. El RPC ahora registra catálogo, versión y resultado por fuente en una transacción. El contenido de origen se representa por hash; los cambios de la página quedan en la versión del catálogo sin copiar el texto íntegro.
 
-## Cobertura del flujo
+## Fuentes y demo
 
-La suite SQL cubre creación de grupo, descubrimiento por disciplina, solicitud, recepción, aprobación repetida, membresía única, consulta de grupos propios, denegación de gestión/decisión a terceros, rechazo de autoentrada, acceso privado a proyectos, asociación de proyectos, administradores por relación, historial de rechazo/cancelación, rollback por taxonomía inválida y constraints. Incluye campos opcionales nulos enviados por la interfaz, bloqueo de propiedad/timestamps forjados, financiación inválida y competencias incoherentes.
+Las tres fichas de `supabase/seed.sql` son **fixtures locales**, no ingestas reales. Enlaces y plazos se comprobaron el 17 de octubre de 2026 en páginas oficiales: [IMDEA Energía](https://energia.imdea.org/en/imdea-energy-launches-30-internships-for-bachelors-and-masters-students-in-2027/) (7 de noviembre), [UPM](https://minasyenergia.upm.es/la-escuela/ultimas-noticias/noticias-estudiantes/noticias-becas-y-ayudas/beca-metrologia-y-analisis-de-datos-en-las-areas-de-volumen-y-temperatura) (26 de octubre, 14:00 Madrid) y [RTVE](https://www.rtve.es/rtve/20261006/convocatoria-impulsa-vision-rtve-ayudas-investigacion-oficiales-tfm/17254848.shtml) (16 de diciembre). Las tres fechas eran posteriores al día de revisión. `tests/database/raul.test.ts` aplica la migración y seed en PGlite y exige tres fixtures con HTTPS y plazo posterior al 17 de octubre. Las APIs de BOE y BDNS están registradas con estado `planned`; no se ingieren aún.
 
-El registro real en Supabase Auth y la concurrencia entre conexiones independientes **no están demostrados por PGlite**. La definición de done completa necesita ejecutar la segunda batería con Docker y resolver cualquier hallazgo que aparezca.
+## Pendiente para validación completa
 
-## Revisión independiente
+- Docker, Podman, Supabase CLI y Deno no están disponibles en PATH en este entorno. **No se ejecutaron** `supabase start`, `supabase db reset`, pgTAP, integración Auth/PostgREST, concurrencia con conexiones independientes ni E2E sobre el stack local. PGlite verifica SQL pero no sustituye esas pruebas.
+- No se configuraron ni leyeron secretos de Firecrawl, Supabase remoto o `RAUL_TRIGGER_TOKEN`; **no se ejecutó una ingesta manual real** ni una petición HTTP al Edge Function. La prueba de secreto cubre la comparación usada por el handler, no un servidor desplegado.
+- La migración nueva y la función necesitan revisión y autorización antes de aplicarse/desplegarse en la base compartida. Después se debe ejecutar una ingesta manual con credenciales backend, comprobar el resumen y enlaces, y solo entonces programar Make. Ver [guía Raúl](raul.md).
 
-El reviewer inspeccionó archivos nuevos reales, migración, políticas/grants, funciones, contratos, frontend, pgTAP, runners, CI y documentación. Ejecutó independientemente **45/45 tests**, TypeScript y ESLint con código de salida 0. Revisión global: **sin hallazgos BLOQUEANTES o IMPORTANTES**. Se corrigieron los cuatro literales UTF-8 señalados como hallazgo menor.
-
-El reviewer volvió a comprobar los literales UTF-8 y el reinicio de estado al cambiar de grupo: **ningún hallazgo BLOQUEANTE, IMPORTANTE o MENOR permanece abierto**.
-
-Se detectó una edición simultánea de `.env.example` con configuración pública remota. Se preservó íntegra en `.local/env-example.bc09dc88-a917-4aa3-a74b-da9906d16f85.bak` (ignorado por Git y verificado por hash) antes de restaurar la plantilla local genérica, conforme a la elección posterior del usuario; no se usaron sus valores.
+La comprobación de plazos es puntual. UPM vence pronto y las fichas deben volver a verificarse tras activar el recolector. Una extracción fallida pasa a revisión; la ausencia de una oportunidad en un lote no la cierra.
