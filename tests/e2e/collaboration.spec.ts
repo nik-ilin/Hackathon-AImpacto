@@ -209,6 +209,28 @@ test("dos cuentas colaboran desde registro hasta proyecto privado", async ({
         }),
       ).toBeVisible();
     });
+    await step("Crear necesidad de incorporación en el proyecto", async () => {
+      await owner.getByRole("link", { name: "Crear necesidad de incorporación" }).click();
+      await owner.getByLabel("Título de la necesidad").fill(`Necesidad E2E ${run}`);
+      await owner.getByLabel("Descripción de la contribución").fill("Contribuir al análisis científico del proyecto.");
+      await owner.getByLabel("Capacidades requeridas", { exact: false }).fill("Python, SQL");
+      await owner.getByRole("button", { name: "Guardar necesidad" }).click();
+      await expect(owner.getByRole("heading", { name: `Necesidad E2E ${run}`, exact: true })).toBeVisible();
+    });
+    await step("Comparar perfil y guardar feedback explícito", async () => {
+      await member.goto("/profile");
+      await member.getByLabel("Competencias", { exact: false }).fill("python, Julia");
+      await member.getByRole("button", { name: "Guardar perfil" }).click();
+      await expect(member.getByRole("status").filter({ hasText: "Perfil e intereses guardados correctamente" })).toBeVisible();
+      await member.goto("/needs");
+      await member.getByRole("link", { name: `Necesidad E2E ${run}` }).click();
+      await member.getByRole("button", { name: "Comparar mi perfil" }).click();
+      await expect(member.getByText("50 % · 1 de 2 capacidades declaradas.")).toBeVisible();
+      await member.getByLabel("¿Te resulta útil?", { exact: false }).selectOption("useful");
+      await member.getByLabel("Comentario opcional").fill("Coincidencia de Python confirmada");
+      await member.getByRole("button", { name: "Guardar feedback" }).click();
+      await expect(member.getByRole("status").filter({ hasText: "Feedback guardado" })).toBeVisible();
+    });
   } catch (error) {
     try {
       await writeFile(

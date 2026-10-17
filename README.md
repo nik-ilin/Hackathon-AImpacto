@@ -72,3 +72,29 @@ Crear migraciones con `npx supabase migration new nombre`. No editar migraciones
 - [Importación de perfil](docs/profile-imports.md): ORCID público mediante función Edge y archivos LinkedIn locales, con vista previa y confirmación explícita.
 
 PostgreSQL/Supabase es la única fuente de verdad. Nunca configurar secret keys/service_role en variables VITE, versionar `.env.local`, modificar producción ni desplegar sin autorización.
+
+## Integración backend para Lovable (local, no desplegada)
+
+La rama `integration/backend-lovable` consolida perfiles/importación, matching, Raúl y Judy sin crear otro backend. El contrato para el frontend separado está en [lovable-backend-handoff](docs/lovable-backend-handoff.md); [backend-readiness](docs/backend-readiness.md) distingue implementación, pruebas, CI y despliegue real.
+
+```powershell
+npm ci
+npm ci --prefix agents/judy
+npm run typecheck
+npm run typecheck:judy
+npm run lint
+npm test
+npm run test:judy
+npm run build
+# Con Deno 2.9.6:
+npm run typecheck:edge
+# Con Supabase local/Docker, solo loopback:
+npm run test:db
+npm run test:db:types
+npm run test:catalog:integration
+npm run test:catalog:concurrency
+npm run test:edge:local
+npm run test:e2e:local
+```
+
+La ingesta Judy exige persistencia configurada o `--dry-run` explícito. No aplicar su SQL legado aislado; las migraciones canónicas viven en `supabase/migrations`. Los workflows solo quedan preparados localmente hasta publicación autorizada; no se han configurado escenarios Make ni secretos.

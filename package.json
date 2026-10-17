@@ -22,7 +22,14 @@
     "test:e2e:local": "node tests/integration/run-e2e.mjs",
     "db:start": "supabase start",
     "db:reset": "supabase db reset --local",
-    "db:types": "supabase gen types typescript --local"
+    "db:types": "supabase gen types typescript --local",
+    "typecheck:edge": "deno check supabase/functions/profile-orcid/index.ts supabase/functions/raul-trigger/index.ts",
+    "test:edge:local": "node tests/integration/run-edge.mjs",
+    "test:catalog:integration": "node tests/integration/backend-catalog.mjs",
+    "test:catalog:concurrency": "node tests/database/catalog-concurrency.mjs",
+    "test:db:types": "node tests/integration/check-generated-types.mjs",
+    "test:judy": "npm --prefix agents/judy test",
+    "typecheck:judy": "npm --prefix agents/judy run typecheck"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",

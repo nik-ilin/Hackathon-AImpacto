@@ -1,0 +1,172 @@
+{
+ "totalResults": 3,
+ "results": [
+  {
+   "reference": "50129993TOPICSen",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL5-2026-11-D3-23",
+   "summary": "Data sharing to support the training and development of AI foundation models in the energy sector",
+   "metadata": {
+    "identifier": [
+     "HORIZON-CL5-2026-11-D3-23"
+    ],
+    "title": [
+     "Data sharing to support the training and development of AI foundation models in the energy sector"
+    ],
+    "callIdentifier": [
+     "HORIZON-CL5-2026-11"
+    ],
+    "callTitle": [
+     "ENERGY"
+    ],
+    "deadlineDate": [
+     "2026-12-01T00:00:00.000+0000"
+    ],
+    "startDate": [
+     "2026-08-04T00:00:00.000+0000"
+    ],
+    "status": [
+     "31094502"
+    ],
+    "typesOfAction": [
+     "HORIZON Innovation Actions"
+    ],
+    "budgetOverview": [
+     "{\"budgetYearsColumns\": [\"2026\"], \"budgetTopicActionMap\": {\"112897\": [{\"action\": \"HORIZON-CL5-2026-11-D3-06 - HORIZON-RIA HORIZON  Research and Innovation Actions\", \"expectedGrants\": 4, \"minContribution\": 4500000, \"maxContribution\": 4500000, \"budgetYearMap\": {\"2026\": \"18000000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}], \"112896\": [{\"action\": \"HORIZON-CL5-2026-11-D3-05 - HORIZON-IA HORIZON Innovation Actions\", \"expectedGrants\": 2, \"minContribution\": 6750000, \"maxContribution\": 6750000, \"budgetYearMap\": {\"2026\": \"13500000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}], \"112898\": [{\"action\": \"HORIZON-CL5-2026-11-D3-23 - HORIZON-IA HORIZON Innovation Actions\", \"expectedGrants\": 3, \"minContribution\": 10000000, \"maxContribution\": 10000000, \"budgetYearMap\": {\"2026\": \"30000000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}], \"112900\": [{\"action\": \"HORIZON-CL5-2026-11-D3-04 - HORIZON-PCP HORIZON Pre-commercial Procurement\", \"expectedGrants\": 1, \"minContribution\": 40000000, \"maxContribution\": 40000000, \"budgetYearMap\": {\"2026\": \"40000000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}]}}"
+    ],
+    "descriptionByte": [
+     "<p class=\"topicdescriptionkind\">Expected Outcome:</p><p>Projects are expected to contribute to all the following expected outcomes:</p><ul level=\"0\"><li>Effective and innovative methods for gathering, sharing and using large data sets in energy applications for the purpose of training AI models while ensuring privacy and security.</li></ul>"
+    ],
+    "keywords": [
+     "HORIZON-CL5-2026-11-D3-23",
+     "HORIZON-CL5-2026-11"
+    ],
+    "crossCuttingPriorities": [
+     "RePowerEU",
+     "DigitalAgenda",
+     "EoscAndFairData",
+     "AI"
+    ],
+    "frameworkProgramme": [
+     "43108390"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL5-2026-11-D3-23"
+    ],
+    "deadlineModel": [
+     "single-stage"
+    ],
+    "type": [
+     "1"
+    ],
+    "language": [
+     "en"
+    ],
+    "destinationDescription": [
+     "Ensuring more efficient, sustainable, secure, and competitive renewable and decarbonised energy supply (2026-27)"
+    ]
+   }
+  },
+  {
+   "reference": "50132001TOPICSen",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL5-2027-05-D4-05",
+   "summary": "Forthcoming topic",
+   "metadata": {
+    "identifier": [
+     "HORIZON-CL5-2027-05-D4-05"
+    ],
+    "title": [
+     "Forthcoming topic (fixture derived from portal listing)"
+    ],
+    "callIdentifier": [
+     "HORIZON-CL5-2027-05"
+    ],
+    "deadlineDate": [
+     "2027-09-15T00:00:00.000+0000"
+    ],
+    "startDate": [
+     "2027-05-04T00:00:00.000+0000"
+    ],
+    "status": [
+     "31094501"
+    ],
+    "type": [
+     "1"
+    ],
+    "frameworkProgramme": [
+     "43108390"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL5-2027-05-D4-05"
+    ],
+    "language": [
+     "en"
+    ]
+   }
+  },
+  {
+   "reference": "50129993TOPICSes",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL5-2026-11-D3-23",
+   "summary": "Data sharing to support the training and development of AI foundation models in the energy sector",
+   "metadata": {
+    "identifier": [
+     "HORIZON-CL5-2026-11-D3-23"
+    ],
+    "title": [
+     "Data sharing to support the training and development of AI foundation models in the energy sector"
+    ],
+    "callIdentifier": [
+     "HORIZON-CL5-2026-11"
+    ],
+    "callTitle": [
+     "ENERGY"
+    ],
+    "deadlineDate": [
+     "2026-12-01T00:00:00.000+0000"
+    ],
+    "startDate": [
+     "2026-08-04T00:00:00.000+0000"
+    ],
+    "status": [
+     "31094502"
+    ],
+    "typesOfAction": [
+     "HORIZON Innovation Actions"
+    ],
+    "budgetOverview": [
+     "{\"budgetYearsColumns\": [\"2026\"], \"budgetTopicActionMap\": {\"112897\": [{\"action\": \"HORIZON-CL5-2026-11-D3-06 - HORIZON-RIA HORIZON  Research and Innovation Actions\", \"expectedGrants\": 4, \"minContribution\": 4500000, \"maxContribution\": 4500000, \"budgetYearMap\": {\"2026\": \"18000000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}], \"112896\": [{\"action\": \"HORIZON-CL5-2026-11-D3-05 - HORIZON-IA HORIZON Innovation Actions\", \"expectedGrants\": 2, \"minContribution\": 6750000, \"maxContribution\": 6750000, \"budgetYearMap\": {\"2026\": \"13500000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}], \"112898\": [{\"action\": \"HORIZON-CL5-2026-11-D3-23 - HORIZON-IA HORIZON Innovation Actions\", \"expectedGrants\": 3, \"minContribution\": 10000000, \"maxContribution\": 10000000, \"budgetYearMap\": {\"2026\": \"30000000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}], \"112900\": [{\"action\": \"HORIZON-CL5-2026-11-D3-04 - HORIZON-PCP HORIZON Pre-commercial Procurement\", \"expectedGrants\": 1, \"minContribution\": 40000000, \"maxContribution\": 40000000, \"budgetYearMap\": {\"2026\": \"40000000\"}, \"plannedOpeningDate\": \"2026-08-04\", \"deadlineModel\": \"single-stage\", \"deadlineDates\": [\"2026-12-01\"]}]}}"
+    ],
+    "descriptionByte": [
+     "<p class=\"topicdescriptionkind\">Expected Outcome:</p><p>Projects are expected to contribute to all the following expected outcomes:</p><ul level=\"0\"><li>Effective and innovative methods for gathering, sharing and using large data sets in energy applications for the purpose of training AI models while ensuring privacy and security.</li></ul>"
+    ],
+    "keywords": [
+     "HORIZON-CL5-2026-11-D3-23",
+     "HORIZON-CL5-2026-11"
+    ],
+    "crossCuttingPriorities": [
+     "RePowerEU",
+     "DigitalAgenda",
+     "EoscAndFairData",
+     "AI"
+    ],
+    "frameworkProgramme": [
+     "43108390"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL5-2026-11-D3-23"
+    ],
+    "deadlineModel": [
+     "single-stage"
+    ],
+    "type": [
+     "1"
+    ],
+    "language": [
+     "en"
+    ],
+    "destinationDescription": [
+     "Ensuring more efficient, sustainable, secure, and competitive renewable and decarbonised energy supply (2026-27)"
+    ]
+   }
+  }
+ ]
+}

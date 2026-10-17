@@ -1,0 +1,60 @@
+﻿name: Judy · canonical funding catalog
+run-name: Judy ${{ inputs.request_id || github.run_id }}
+on:
+  schedule:
+    - cron: "15 5 * * *"
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: "Stable idempotency key; Make reuses this value on dispatch retries"
+        required: false
+      sources:
+        description: "private_web is explicit opt-in"
+        required: false
+        default: "bdns,eu_funding_tenders,ucm_otri"
+      since_days:
+        description: "BDNS lookback, integer 1..365"
+        required: false
+        default: "120"
+permissions:
+  contents: read
+concurrency:
+  group: judy-collect
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: agents/judy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: agents/judy/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm test
+      - name: Collect and persist in canonical Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          JUDY_LLM_MODEL: ${{ secrets.JUDY_LLM_MODEL }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          FIRECRAWL_MAX_AGE_MS: "86400000"
+          JUDY_SOURCES: ${{ inputs.sources || 'bdns,eu_funding_tenders,ucm_otri' }}
+          JUDY_SINCE_DAYS: ${{ inputs.since_days || '120' }}
+          JUDY_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'make' }}
+          JUDY_REQUEST_ID: ${{ inputs.request_id || format('github-{0}', github.run_id) }}
+        run: npm run collect -- --request-id "$JUDY_REQUEST_ID" --trigger "$JUDY_TRIGGER" --sources "$JUDY_SOURCES" --since-days "$JUDY_SINCE_DAYS" --out data
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: judy-run-${{ github.run_id }}
+          path: agents/judy/data/
+          if-no-files-found: warn
+          retention-days: 14

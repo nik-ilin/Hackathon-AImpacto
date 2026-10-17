@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   ArrowUpRight,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "../../app/providers/auth-context";
 import { backend } from "../../lib/supabase/client";
@@ -21,6 +22,8 @@ const navigation = [
   { to: "/dashboard", label: "Mi espacio", icon: LayoutDashboard },
   { to: "/explore", label: "Explorar grupos", icon: Compass },
   { to: "/my-groups", label: "Mis grupos", icon: Users },
+  { to: "/needs", label: "Necesidades", icon: Compass },
+  { to: "/scholarships", label: "Becas", icon: GraduationCap },
   { to: "/requests", label: "Solicitudes", icon: Inbox },
 ];
 export function Brand() {
