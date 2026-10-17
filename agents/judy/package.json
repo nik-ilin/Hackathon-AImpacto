@@ -1,0 +1,25 @@
+{
+  "name": "@nexolab/judy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Judy: agente de NexoLab que recopila convocatorias de financiación públicas y privadas para la investigación",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "collect": "node --experimental-strip-types src/cli.ts",
+    "serve": "node --experimental-strip-types src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "cheerio": "1.2.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "@types/node": "22.20.5",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

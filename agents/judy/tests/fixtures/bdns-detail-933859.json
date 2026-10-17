@@ -1,0 +1,16 @@
+{
+  "abierto": false, "anuncios": [], "ayudaEstado": null, "codigoBDNS": "933859",
+  "descripcion": "Conv.ayudas proyectos investigación univ.y centros púb. Inicia y Fortalece 2026",
+  "descripcionBasesReguladoras": "Bases reguladoras de las ayudas destinadas a la ejecución de proyectos de investigación en universidades y centros públicos de investigación de la Comunidad Autónoma de La Rioja",
+  "descripcionFinalidad": "Investigación, desarrollo e innovación", "descripcionLeng": null,
+  "documentos": [{ "datMod": "2026-10-13", "datPublicacion": "2026-10-14", "descripcion": "Modelo de solicitud Inicia 2026", "id": 1535999, "long": 86347, "nombreFic": "Anexo I. Solicitud  Inicia 2026.docx" }],
+  "fechaFinSolicitud": null, "fechaInicioSolicitud": null, "fechaRecepcion": "2026-10-06", "fondos": [], "id": 1135420,
+  "instrumentos": [{ "descripcion": "SUBVENCIÓN Y ENTREGA DINERARIA SIN CONTRAPRESTACIÓN " }], "mrr": false, "objetivos": [],
+  "organo": { "nivel1": "AUTONOMICA", "nivel2": "LA RIOJA", "nivel3": "CONSEJERÍA DE EDUCACIÓN Y EMPLEO" },
+  "presupuestoTotal": 155000, "regiones": [{ "descripcion": "ES230 - La Rioja" }], "reglamento": null, "sePublicaDiarioOficial": true,
+  "sectores": [{ "codigo": "72", "descripcion": "Investigación y desarrollo" }], "sectoresProductos": [], "sedeElectronica": null,
+  "textFin": "A los veinte días hábiles desde el día siguiente de su publicación en BOR", "textInicio": "El día siguiente a su publicación en el BOR",
+  "tipoConvocatoria": "Concurrencia competitiva - canónica",
+  "tiposBeneficiarios": [{ "descripcion": "PERSONAS JURÍDICAS QUE NO DESARROLLAN ACTIVIDAD ECONÓMICA" }],
+  "urlAyudaEstado": null, "urlBasesReguladoras": "https://ias1.larioja.org/boletin/Bor_Boletin_visor_Servlet?referencia=17608674-1-PDF-540691-X"
+}

@@ -1,0 +1,8 @@
+{
+  "content": [
+    { "codigoInvente": null, "descripcion": "Ayuda para realizar estancias predoctorales en EEUU de estudiantes que realizan su doctorado en universidades navarras.", "descripcionLeng": null, "fechaRecepcion": "2026-10-05", "id": 1135029, "mrr": false, "nivel1": "AUTONOMICA", "nivel2": "COMUNIDAD FORAL DE NAVARRA", "nivel3": "DEPARTAMENTO DE UNIVERSIDAD, INNOVACION Y TRANSFORMACION DIGITAL", "numeroConvocatoria": "933468" },
+    { "codigoInvente": null, "descripcion": "Conv.ayudas proyectos investigación univ.y centros púb. Inicia y Fortalece 2026", "descripcionLeng": null, "fechaRecepcion": "2026-10-06", "id": 1135420, "mrr": false, "nivel1": "AUTONOMICA", "nivel2": "LA RIOJA", "nivel3": "CONSEJERÍA DE EDUCACIÓN Y EMPLEO", "numeroConvocatoria": "933859" },
+    { "codigoInvente": null, "descripcion": "Subvención Nominativa 2026, Ayuntamiento Málaga", "descripcionLeng": null, "fechaRecepcion": "2026-10-16", "id": 1137545, "mrr": false, "nivel1": "AUTONOMICA", "nivel2": "ANDALUCÍA", "nivel3": "AGENCIA DIGITAL DE ANDALUCÍA", "numeroConvocatoria": "935984" }
+  ],
+  "last": true, "first": true, "totalElements": 3, "totalPages": 1, "number": 0, "size": 50, "numberOfElements": 3, "empty": false
+}
