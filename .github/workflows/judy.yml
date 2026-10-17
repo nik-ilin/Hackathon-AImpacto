@@ -1,0 +1,54 @@
+name: Judy · recopilar convocatorias
+on:
+  schedule:
+    - cron: "15 5 * * *" # todos los días a las 05:15 UTC
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Fuentes separadas por comas (bdns,eu_funding_tenders,ucm_otri,private_web)"
+        required: false
+        default: "bdns,eu_funding_tenders,ucm_otri,private_web"
+      since_days:
+        description: "Días hacia atrás en BDNS"
+        required: false
+        default: "120"
+permissions:
+  contents: read
+concurrency:
+  group: judy-collect
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: agents/judy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Versiones directas fijadas en package.json; generad y subid package-lock.json para builds 100 % reproducibles.
+      - run: npm install --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm test
+      - name: Recopilar y guardar en Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          JUDY_LLM_MODEL: ${{ secrets.JUDY_LLM_MODEL }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          FIRECRAWL_MAX_AGE_MS: "86400000"
+          # Las entradas manuales van por variables de entorno, nunca interpoladas en el script.
+          JUDY_SOURCES: ${{ inputs.sources || 'bdns,eu_funding_tenders,ucm_otri,private_web' }}
+          JUDY_SINCE_DAYS: ${{ inputs.since_days || '120' }}
+          JUDY_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'make' }}
+        run: npm run collect -- --trigger "$JUDY_TRIGGER" --sources "$JUDY_SOURCES" --since-days "$JUDY_SINCE_DAYS" --out data
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: judy-convocatorias
+          path: agents/judy/data/
+          retention-days: 14
